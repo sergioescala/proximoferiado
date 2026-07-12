@@ -25,9 +25,14 @@ function readInitialTheme(): Theme {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   // El script inline en <head> (ver layout.tsx) ya aplicó el tema correcto
-  // al <html> antes de la primera pintura; acá solo sincronizamos el
-  // estado de React con lo que haya quedado en el DOM/localStorage.
-  const [theme, setThemeState] = useState<Theme>("light");
+  // al <html> antes de la primera pintura. El inicializador lee ese mismo
+  // atributo (solo existe en el navegador, nunca durante el build estático)
+  // para que el ícono del toggle nazca ya correcto y no parpadee.
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof document === "undefined") return "light";
+    const domTheme = document.documentElement.dataset.theme;
+    return domTheme === "dark" ? "dark" : "light";
+  });
 
   useEffect(() => {
     setThemeState(readInitialTheme());

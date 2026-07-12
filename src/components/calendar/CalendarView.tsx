@@ -1,25 +1,37 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ControlsRow } from "@/components/ControlsRow";
 import { HolidayNatureNote } from "@/components/HolidayNatureNote";
+import { IrrenunciableNote } from "@/components/IrrenunciableNote";
 import { MonthSummary } from "@/components/calendar/MonthSummary";
-import { getMonthGrid } from "@/lib/calendar";
+import { getMonthGrid, type CalendarDay } from "@/lib/calendar";
 import { formatFullDate, formatMonthName, toKey, weekdayNameByIndex } from "@/lib/dates";
 import { describeCoverage, getMonthSummary, getTodayStatus } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
 
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // lunes a domingo (convención Date#getDay)
+const SWIPE_THRESHOLD_PX = 48;
+
+function describeDayForScreenReader(day: CalendarDay, locale: string): string {
+  const parts = [formatFullDate(day.date, locale)];
+  if (day.isToday) parts.push("hoy");
+  if (day.holidays.length > 0) parts.push(`feriado: ${day.holidays.map((h) => h.nombre).join(", ")}`);
+  else if (day.isSunday) parts.push("domingo");
+  if (!day.inMonth) parts.push("fuera del mes mostrado");
+  return parts.join(", ");
+}
 
 export function CalendarView() {
   const { now, holidays, data, longWeekends, bridgeOpportunities } = useHolidayData();
   const locale = data.locale ?? "es";
   const [month, setMonth] = useState<number | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (month === null && now) {
@@ -54,6 +66,20 @@ export function CalendarView() {
   const weekdayLabels = WEEKDAY_ORDER.map((i) => weekdayNameByIndex(i, locale, "short"));
   const selectedStatus = selectedDay ? getTodayStatus(holidays, selectedDay.date) : null;
 
+  const goToPreviousMonth = () => setMonth((m) => (m !== null ? Math.max(0, m - 1) : m));
+  const goToNextMonth = () => setMonth((m) => (m !== null ? Math.min(11, m + 1) : m));
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = (e.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+    touchStartX.current = null;
+    if (deltaX > SWIPE_THRESHOLD_PX) goToPreviousMonth();
+    else if (deltaX < -SWIPE_THRESHOLD_PX) goToNextMonth();
+  };
+
   return (
     <main className="flex-1 px-5 pt-6">
       <h1 className="text-2xl font-bold text-ink">Calendario</h1>
@@ -67,8 +93,8 @@ export function CalendarView() {
           type="button"
           aria-label="Mes anterior"
           disabled={month === 0}
-          onClick={() => setMonth((m) => (m !== null ? Math.max(0, m - 1) : m))}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30 active:scale-95"
+          onClick={goToPreviousMonth}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30 active:scale-95"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -79,14 +105,18 @@ export function CalendarView() {
           type="button"
           aria-label="Mes siguiente"
           disabled={month === 11}
-          onClick={() => setMonth((m) => (m !== null ? Math.min(11, m + 1) : m))}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30 active:scale-95"
+          onClick={goToNextMonth}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30 active:scale-95"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="mt-4 grid grid-cols-7 gap-y-1 text-center">
+      <div
+        className="mt-4 grid grid-cols-7 gap-y-1 text-center"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {weekdayLabels.map((label, i) => (
           <span key={i} className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
             {label}
@@ -102,6 +132,8 @@ export function CalendarView() {
             <button
               key={key}
               type="button"
+              aria-label={describeDayForScreenReader(day, locale)}
+              aria-pressed={isSelected}
               onClick={() => setSelectedKey((prev) => (prev === key ? null : key))}
               className={`relative mx-auto flex h-10 w-10 flex-col items-center justify-center rounded-2xl text-sm transition-all active:scale-95 ${
                 hasHoliday ? "font-semibold text-holiday" : day.isSunday ? "text-sunday" : "text-ink"
@@ -115,6 +147,7 @@ export function CalendarView() {
           );
         })}
       </div>
+      <p className="mt-1 text-center text-[10px] text-ink-faint">Deslizá para cambiar de mes</p>
 
       <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-ink-faint">
         <span className="inline-flex items-center gap-1.5">
@@ -158,6 +191,7 @@ export function CalendarView() {
                     {holiday.beneficiarios?.length ? (
                       <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
                     ) : null}
+                    <IrrenunciableNote irrenunciable={holiday.irrenunciable} className="mt-1" />
                     <HolidayNatureNote
                       holiday={holiday}
                       bridgeOpportunities={bridgeOpportunities ?? []}

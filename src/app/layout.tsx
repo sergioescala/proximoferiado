@@ -31,10 +31,19 @@ const inter = Inter({
 // exportación estática, así que se arma la ruta absoluta a mano. Esto es lo
 // único (además del service worker) que necesita conocer el basePath.
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+const title = `Próximo feriado · ${holidaysData.pais} ${holidaysData.anio}`;
+const description = `Feriados oficiales de ${holidaysData.pais} para ${holidaysData.anio}: próximo feriado, cuenta regresiva, calendario y feriados puente.`;
 
 export const metadata: Metadata = {
-  title: `Próximo feriado · ${holidaysData.pais} ${holidaysData.anio}`,
-  description: `Feriados oficiales de ${holidaysData.pais} para ${holidaysData.anio}: próximo feriado, cuenta regresiva, calendario y estadísticas.`,
+  // OJO: solo el origen (protocolo+host), sin el basePath. Next ya resuelve
+  // las rutas auto-detectadas (como opengraph-image) con el basePath
+  // incluido; si acá también lo agregamos, queda duplicado en la URL final
+  // (".../mi-repo/mi-repo/opengraph-image"). Sin NEXT_PUBLIC_SITE_URL
+  // (build local, por ejemplo) se deja sin definir.
+  metadataBase: siteUrl ? new URL(new URL(siteUrl).origin) : undefined,
+  title,
+  description,
   manifest: `${basePath}/manifest.webmanifest`,
   icons: {
     icon: [
@@ -50,6 +59,17 @@ export const metadata: Metadata = {
   },
   formatDetection: {
     telephone: false,
+  },
+  openGraph: {
+    title,
+    description,
+    type: "website",
+    locale: holidaysData.locale ?? "es",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
   },
 };
 

@@ -1,0 +1,8 @@
+# Nota: en un repo de proyecto (usuario.github.io/mi-repo) este archivo
+# queda publicado en /mi-repo/robots.txt, no en la raíz del dominio, así
+# que la mayoría de los crawlers no lo van a encontrar ahí (buscan
+# /robots.txt en la raíz). Es útil igual para dominio propio o para un
+# repo de usuario/organización (usuario.github.io), donde sí queda en la
+# raíz real.
+User-agent: *
+Allow: /

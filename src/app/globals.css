@@ -75,6 +75,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Solo se muestra con navegación por teclado (:focus-visible), no al tocar
+   o hacer click con mouse, para no ensuciar la UI táctil. */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 html {
   color-scheme: light dark;
 }
