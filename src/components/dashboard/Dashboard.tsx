@@ -5,7 +5,7 @@ import { LastHolidayCard } from "@/components/dashboard/LastHolidayCard";
 import { NextHolidayHero } from "@/components/dashboard/NextHolidayHero";
 import { TodayHolidayCard } from "@/components/dashboard/TodayHolidayCard";
 import { TodayStatus } from "@/components/dashboard/TodayStatus";
-import { HolidayFilterToggle } from "@/components/HolidayFilterToggle";
+import { ControlsRow } from "@/components/ControlsRow";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useHolidayData } from "@/hooks/useHolidayData";
 
@@ -18,7 +18,7 @@ export function Dashboard() {
       <Header data={data} />
 
       <div className="mt-3 px-5">
-        <HolidayFilterToggle />
+        <ControlsRow />
       </div>
 
       <TodayStatus now={now} status={todayStatus ?? null} locale={locale} />

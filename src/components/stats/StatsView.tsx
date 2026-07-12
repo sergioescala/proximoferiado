@@ -1,7 +1,8 @@
 "use client";
 
+import { BridgeList } from "@/components/stats/BridgeList";
 import { StatsGrid } from "@/components/stats/StatsGrid";
-import { HolidayFilterToggle } from "@/components/HolidayFilterToggle";
+import { ControlsRow } from "@/components/ControlsRow";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useHolidayData } from "@/hooks/useHolidayData";
 
@@ -17,12 +18,15 @@ export function StatsView() {
       </p>
 
       <div className="mt-4">
-        <HolidayFilterToggle />
+        <ControlsRow />
       </div>
 
       <div className="mt-6 pb-4">
         {stats ? (
-          <StatsGrid stats={stats} locale={locale} />
+          <>
+            <StatsGrid stats={stats} locale={locale} />
+            <BridgeList opportunities={stats.bridgeOpportunities} locale={locale} />
+          </>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: 8 }).map((_, i) => (

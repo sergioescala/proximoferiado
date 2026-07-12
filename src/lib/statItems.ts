@@ -35,6 +35,12 @@ export function buildStatItems(stats: HolidayStats, locale: string): StatItem[] 
     { id: "irrenunciables", label: "Irrenunciables", value: String(stats.irrenunciables) },
     { id: "domingos", label: "Domingos restantes", value: String(stats.domingosRestantes) },
     {
+      id: "entreSemana",
+      label: "Feriados entre semana",
+      value: String(stats.entreSemana),
+      caption: stats.finDeSemana > 0 ? `${pluralFeriados(stats.finDeSemana)} en fin de semana` : "Ninguno en fin de semana",
+    },
+    {
       id: "mesMax",
       label: "Mes con más feriados",
       value: stats.monthMost ? formatMonthName(stats.monthMost.monthIndex, locale) : "—",
@@ -59,6 +65,12 @@ export function buildStatItems(stats: HolidayStats, locale: string): StatItem[] 
       caption: stats.gaps.min ? `Entre ${stats.gaps.min.from.nombre} y ${stats.gaps.min.to.nombre}` : undefined,
     },
     { id: "finesLargos", label: "Fines de semana largos", value: String(stats.longWeekends.length) },
+    {
+      id: "puente",
+      label: "Feriados puente",
+      value: String(stats.bridgeOpportunities.length),
+      caption: "Martes o jueves + 1 día libre",
+    },
     {
       id: "lunes",
       label: `Feriados que caen ${weekdayNameByIndex(1, locale).toLowerCase()}`,

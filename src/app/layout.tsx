@@ -1,10 +1,25 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { BottomNav } from "@/components/BottomNav";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { HolidayFilterProvider } from "@/context/HolidayFilterContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { holidaysData } from "@/lib/data";
 import "./globals.css";
+
+// Se ejecuta antes de la hidratación para fijar el tema (localStorage o
+// preferencia del sistema) sin parpadeo. Es JS 100% cliente embebido en el
+// HTML estático, sin ninguna dependencia de servidor.
+const THEME_INIT_SCRIPT = `
+  try {
+    var stored = localStorage.getItem('proximoferiado:tema');
+    var theme = stored === 'light' || stored === 'dark'
+      ? stored
+      : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+  } catch (e) {}
+`;
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,16 +68,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
+      <head>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
+      </head>
       <body className="min-h-screen bg-canvas font-sans antialiased">
-        <HolidayFilterProvider>
-          <div
-            className="mx-auto flex min-h-screen max-w-md flex-col"
-            style={{ paddingBottom: "calc(6rem + env(safe-area-inset-bottom))" }}
-          >
-            {children}
-          </div>
-          <BottomNav />
-        </HolidayFilterProvider>
+        <ThemeProvider>
+          <HolidayFilterProvider>
+            <div
+              className="mx-auto flex min-h-screen max-w-md flex-col"
+              style={{ paddingBottom: "calc(6rem + env(safe-area-inset-bottom))" }}
+            >
+              {children}
+            </div>
+            <BottomNav />
+          </HolidayFilterProvider>
+        </ThemeProvider>
         <ServiceWorkerRegister />
       </body>
     </html>
