@@ -1,5 +1,7 @@
 {
   "pais": "Chile",
+  "codigoPais": "CL",
+  "locale": "es-CL",
   "anio": 2026,
   "actualizado": "2026-07-12",
   "notas": "Feriados oficiales de Chile para el año 2026. Un feriado 'irrenunciable' obliga al cierre del comercio (los trabajadores no pueden ser requeridos para prestar servicios ese día, salvo excepciones legales).",
