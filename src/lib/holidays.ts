@@ -163,19 +163,35 @@ export function getLongWeekends(holidays: Holiday[], year: number): LongWeekend[
 }
 
 export interface BridgeOpportunity {
-  /** El feriado que cae martes o jueves. */
+  /** El feriado que cae lunes, martes, jueves o viernes. */
   holiday: Holiday;
-  /** El día que habría que tomar como vacaciones para armar el fin de semana largo. */
+  /** El día que habría que tomar como vacaciones para sumar más días libres. */
   bridgeDate: Date;
   /** Duración total del descanso resultante, en días. */
   totalDays: number;
 }
 
 /**
- * Detecta "feriados puente": caen martes (se puentea el lunes) o jueves (se
- * puentea el viernes), y ese día intermedio todavía no es feriado ni forma
- * parte de un fin de semana largo ya armado (`getLongWeekends`), así que
- * tomarlo como día de vacaciones efectivamente extiende el descanso.
+ * Desplazamiento (en días) hacia el día que conviene tomar como vacaciones,
+ * según en qué día de la semana cae el feriado:
+ * - Martes -> se puentea el lunes (-1) para sumar sábado+domingo+lunes+martes.
+ * - Jueves -> se puentea el viernes (+1) para sumar jueves+viernes+sábado+domingo.
+ * - Lunes -> ya viene pegado al fin de semana; se extiende con el martes (+1).
+ * - Viernes -> ya viene pegado al fin de semana; se extiende con el jueves (-1).
+ */
+const BRIDGE_OFFSET_BY_WEEKDAY: Partial<Record<number, number>> = {
+  1: 1, // lunes
+  2: -1, // martes
+  4: 1, // jueves
+  5: -1, // viernes
+};
+
+/**
+ * Detecta oportunidades de tomar un solo día de vacaciones para sumar más
+ * días libres seguidos: feriados martes/jueves (se puentea el día que falta
+ * para llegar al fin de semana) y feriados lunes/viernes (ya pegados al fin
+ * de semana, se extienden un día más). Si el día a tomar ya es feriado, no
+ * hace falta pedirlo, así que se descarta.
  */
 export function getBridgeDayOpportunities(holidays: Holiday[], year: number): BridgeOpportunity[] {
   const holidayDates = new Set(holidays.map((h) => h.fecha));
@@ -183,13 +199,11 @@ export function getBridgeDayOpportunities(holidays: Holiday[], year: number): Br
 
   for (const holiday of holidays) {
     if (holiday.date.getFullYear() !== year) continue;
-    const weekday = holiday.date.getDay();
-    const isTuesday = weekday === 2;
-    const isThursday = weekday === 4;
-    if (!isTuesday && !isThursday) continue;
+    const offset = BRIDGE_OFFSET_BY_WEEKDAY[holiday.date.getDay()];
+    if (offset === undefined) continue;
 
-    const bridgeDate = addDays(holiday.date, isTuesday ? -1 : 1);
-    if (holidayDates.has(toKey(bridgeDate))) continue; // ya es feriado, no hace falta puentear
+    const bridgeDate = addDays(holiday.date, offset);
+    if (holidayDates.has(toKey(bridgeDate))) continue; // ya es feriado, no hace falta pedirlo
 
     opportunities.push({ holiday, bridgeDate, totalDays: 4 });
   }
