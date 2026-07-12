@@ -6,15 +6,17 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ControlsRow } from "@/components/ControlsRow";
+import { HolidayNatureNote } from "@/components/HolidayNatureNote";
+import { MonthSummary } from "@/components/calendar/MonthSummary";
 import { getMonthGrid } from "@/lib/calendar";
-import { formatFullDate, formatMonthName, isWeekend, toKey, weekdayNameByIndex } from "@/lib/dates";
-import { describeCoverage, getTodayStatus } from "@/lib/holidays";
+import { formatFullDate, formatMonthName, toKey, weekdayNameByIndex } from "@/lib/dates";
+import { describeCoverage, getMonthSummary, getTodayStatus } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
 
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // lunes a domingo (convención Date#getDay)
 
 export function CalendarView() {
-  const { now, holidays, data } = useHolidayData();
+  const { now, holidays, data, longWeekends, bridgeOpportunities } = useHolidayData();
   const locale = data.locale ?? "es";
   const [month, setMonth] = useState<number | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -35,7 +37,12 @@ export function CalendarView() {
     return grid.find((d) => toKey(d.date) === selectedKey) ?? null;
   }, [grid, selectedKey]);
 
-  if (!now || month === null || !grid) {
+  const monthSummary = useMemo(() => {
+    if (month === null || !longWeekends || !bridgeOpportunities) return null;
+    return getMonthSummary(holidays, month, data.anio, longWeekends, bridgeOpportunities);
+  }, [holidays, month, data.anio, longWeekends, bridgeOpportunities]);
+
+  if (!now || month === null || !grid || !monthSummary) {
     return (
       <main className="flex-1 px-5 pt-6">
         <h1 className="text-2xl font-bold text-ink">Calendario</h1>
@@ -121,6 +128,8 @@ export function CalendarView() {
         </span>
       </div>
 
+      <MonthSummary summary={monthSummary} locale={locale} />
+
       <div className="mt-5 pb-4">
         {!selectedDay ? (
           <Card className="text-center">
@@ -149,9 +158,12 @@ export function CalendarView() {
                     {holiday.beneficiarios?.length ? (
                       <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
                     ) : null}
-                    {isWeekend(holiday.date) ? (
-                      <p className="mt-1 text-[10px] italic text-ink-faint">Cae en fin de semana</p>
-                    ) : null}
+                    <HolidayNatureNote
+                      holiday={holiday}
+                      bridgeOpportunities={bridgeOpportunities ?? []}
+                      locale={locale}
+                      className="mt-1"
+                    />
                   </div>
                 ))}
               </div>
