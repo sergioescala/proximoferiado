@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { LocateFixed } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ControlsRow } from "@/components/ControlsRow";
 import { HolidayNatureNote } from "@/components/HolidayNatureNote";
+import { IrrenunciableNote } from "@/components/IrrenunciableNote";
 import { diffInCalendarDays, formatDayMonth, formatMonthName, formatWeekday } from "@/lib/dates";
 import { relativeDaysLabel } from "@/lib/format";
 import { describeCoverage, getTimelineState, type TimelineState } from "@/lib/holidays";
@@ -42,28 +44,45 @@ export function Timeline() {
   const itemRefs = useRef(new Map<string, HTMLLIElement>());
   const hasAutoScrolled = useRef(false);
 
+  const scrollToNearest = useCallback(
+    (behavior: ScrollBehavior) => {
+      if (!now || holidays.length === 0) return;
+      const target =
+        holidays.find((h) => getTimelineState(h, now, next ?? null) === "hoy") ??
+        holidays.find((h) => getTimelineState(h, now, next ?? null) === "proximo");
+      if (!target) return;
+      itemRefs.current.get(itemKey(target))?.scrollIntoView({ block: "center", behavior });
+    },
+    [now, holidays, next]
+  );
+
   // Al entrar a la línea de tiempo, la posiciona directamente en el feriado
   // de hoy (o si no hay, en el próximo) para no tener que buscarlo a mano.
   // Se hace una sola vez: `now` cambia cada segundo y no debe reintentar.
   useEffect(() => {
-    if (!now || hasAutoScrolled.current || holidays.length === 0) return;
+    if (hasAutoScrolled.current || !now) return;
     hasAutoScrolled.current = true;
-
-    const target =
-      holidays.find((h) => getTimelineState(h, now, next ?? null) === "hoy") ??
-      holidays.find((h) => getTimelineState(h, now, next ?? null) === "proximo");
-    if (!target) return;
-
-    const el = itemRefs.current.get(itemKey(target));
-    el?.scrollIntoView({ block: "center" });
-  }, [now, holidays, next]);
+    scrollToNearest("auto");
+  }, [now, scrollToNearest]);
 
   return (
     <main className="flex-1 px-5 pt-6">
-      <h1 className="text-2xl font-bold text-ink">Línea de tiempo</h1>
-      <p className="mt-1 text-sm text-ink-muted">
-        {holidays.length} feriados en {data.anio}
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Línea de tiempo</h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            {holidays.length} feriados en {data.anio}
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label="Ir al feriado de hoy o al próximo"
+          onClick={() => scrollToNearest("smooth")}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted active:scale-95"
+        >
+          <LocateFixed className="h-4 w-4" />
+        </button>
+      </div>
 
       <div className="mt-4">
         <ControlsRow />
@@ -120,6 +139,7 @@ export function Timeline() {
                       {holiday.beneficiarios?.length ? (
                         <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
                       ) : null}
+                      <IrrenunciableNote irrenunciable={holiday.irrenunciable} className="mt-1" />
                       <HolidayNatureNote
                         holiday={holiday}
                         bridgeOpportunities={bridges}

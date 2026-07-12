@@ -34,20 +34,25 @@ jobs:
 
       # Un repo de proyecto (usuario.github.io/mi-repo) necesita basePath
       # "/mi-repo". Un repo de usuario/organización (usuario.github.io)
-      # se sirve en la raíz, sin basePath.
-      - name: Calcular basePath según el repositorio
+      # se sirve en la raíz, sin basePath. La URL pública final se arma con
+      # el mismo criterio, para metadata absoluta (Open Graph, sitemap).
+      - name: Calcular basePath y URL pública según el repositorio
         id: basepath
         run: |
           REPO_NAME="${{ github.event.repository.name }}"
+          REPO_OWNER="${{ github.repository_owner }}"
           if [[ "$REPO_NAME" == *.github.io ]]; then
             echo "value=" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://$REPO_NAME" >> "$GITHUB_OUTPUT"
           else
             echo "value=/$REPO_NAME" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://$REPO_OWNER.github.io/$REPO_NAME" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build (exportación 100% estática)
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ steps.basepath.outputs.value }}
+          NEXT_PUBLIC_SITE_URL: ${{ steps.basepath.outputs.site_url }}
         run: npm run build
 
       - name: Subir artefacto de Pages

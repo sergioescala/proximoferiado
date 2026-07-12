@@ -13,9 +13,11 @@ export function ThemeToggle() {
       aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       aria-pressed={isDark}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted transition-colors active:scale-95"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted transition-colors active:scale-95"
     >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {/* El ícono puede diferir entre el HTML pre-generado (siempre asume
+          claro) y el tema real leído en el navegador; es intencional. */}
+      <span suppressHydrationWarning>{isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</span>
     </button>
   );
 }

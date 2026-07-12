@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { HolidayNatureNote } from "@/components/HolidayNatureNote";
+import { IrrenunciableNote } from "@/components/IrrenunciableNote";
 import { formatFullDate } from "@/lib/dates";
 import { describeCoverage, type BridgeOpportunity } from "@/lib/holidays";
 import type { Holiday } from "@/types/holidays";
@@ -30,6 +31,7 @@ export function TodayHolidayCard({ holiday, locale, notas, bridgeOpportunities }
 
       <p className="mt-3 text-sm text-ink-muted">{formatFullDate(holiday.date, locale)}</p>
       {extra ? <p className="mt-2 text-xs leading-relaxed text-ink-faint">{extra}</p> : null}
+      <IrrenunciableNote irrenunciable={holiday.irrenunciable} className="mt-2" />
       <HolidayNatureNote
         holiday={holiday}
         bridgeOpportunities={bridgeOpportunities}
