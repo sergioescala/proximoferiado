@@ -1,5 +1,5 @@
 import type { Cobertura, Holiday, HolidaysData } from "@/types/holidays";
-import { addDays, diffInCalendarDays, isSameDay, parseISODate, startOfDay, toKey } from "@/lib/dates";
+import { addDays, diffInCalendarDays, isSameDay, isWeekend, parseISODate, startOfDay, toKey } from "@/lib/dates";
 
 /** Une feriados generales y específicos en una sola lista, ordenada por fecha. */
 export function normalizeHolidays(data: HolidaysData): Holiday[] {
@@ -162,6 +162,41 @@ export function getLongWeekends(holidays: Holiday[], year: number): LongWeekend[
   return runs;
 }
 
+export interface BridgeOpportunity {
+  /** El feriado que cae martes o jueves. */
+  holiday: Holiday;
+  /** El día que habría que tomar como vacaciones para armar el fin de semana largo. */
+  bridgeDate: Date;
+  /** Duración total del descanso resultante, en días. */
+  totalDays: number;
+}
+
+/**
+ * Detecta "feriados puente": caen martes (se puentea el lunes) o jueves (se
+ * puentea el viernes), y ese día intermedio todavía no es feriado ni forma
+ * parte de un fin de semana largo ya armado (`getLongWeekends`), así que
+ * tomarlo como día de vacaciones efectivamente extiende el descanso.
+ */
+export function getBridgeDayOpportunities(holidays: Holiday[], year: number): BridgeOpportunity[] {
+  const holidayDates = new Set(holidays.map((h) => h.fecha));
+  const opportunities: BridgeOpportunity[] = [];
+
+  for (const holiday of holidays) {
+    if (holiday.date.getFullYear() !== year) continue;
+    const weekday = holiday.date.getDay();
+    const isTuesday = weekday === 2;
+    const isThursday = weekday === 4;
+    if (!isTuesday && !isThursday) continue;
+
+    const bridgeDate = addDays(holiday.date, isTuesday ? -1 : 1);
+    if (holidayDates.has(toKey(bridgeDate))) continue; // ya es feriado, no hace falta puentear
+
+    opportunities.push({ holiday, bridgeDate, totalDays: 4 });
+  }
+
+  return opportunities.sort((a, b) => a.holiday.date.getTime() - b.holiday.date.getTime());
+}
+
 /** Domingos restantes desde `now` (inclusive) hasta el 31 de diciembre de `year`. */
 export function getSundaysRemaining(now: Date, year: number): number {
   const today = startOfDay(now);
@@ -189,12 +224,17 @@ export interface HolidayStats {
   transcurridos: number;
   irrenunciables: number;
   domingosRestantes: number;
+  /** Feriados de lunes a viernes: suman un día libre que no tendrías igual. */
+  entreSemana: number;
+  /** Feriados que caen sábado o domingo: no suman un día libre extra. */
+  finDeSemana: number;
   monthDistribution: MonthCount[];
   monthMost: MonthCount | null;
   monthLeast: MonthCount | null;
   weekdayDistribution: WeekdayCount[];
   gaps: GapsResult;
   longWeekends: LongWeekend[];
+  bridgeOpportunities: BridgeOpportunity[];
 }
 
 export function getHolidayStats(data: HolidaysData, holidays: Holiday[], now: Date): HolidayStats {
@@ -205,6 +245,7 @@ export function getHolidayStats(data: HolidaysData, holidays: Holiday[], now: Da
   const restantes = holidays.filter((h) => h.date.getTime() >= today.getTime()).length;
   const transcurridos = holidays.filter((h) => h.date.getTime() < today.getTime()).length;
   const irrenunciables = holidays.filter((h) => h.irrenunciable).length;
+  const entreSemana = holidays.filter((h) => !isWeekend(h.date)).length;
 
   const monthDistribution = getMonthlyDistribution(holidays);
   const monthsWithHolidays = monthDistribution.filter((m) => m.count > 0);
@@ -226,12 +267,15 @@ export function getHolidayStats(data: HolidaysData, holidays: Holiday[], now: Da
     transcurridos,
     irrenunciables,
     domingosRestantes: getSundaysRemaining(now, data.anio),
+    entreSemana,
+    finDeSemana: holidays.length - entreSemana,
     monthDistribution,
     monthMost,
     monthLeast,
     weekdayDistribution: getWeekdayDistribution(holidays),
     gaps: getGaps(holidays),
     longWeekends: getLongWeekends(holidays, data.anio),
+    bridgeOpportunities: getBridgeDayOpportunities(holidays, data.anio),
   };
 }
 

@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { HolidayFilterToggle } from "@/components/HolidayFilterToggle";
-import { diffInCalendarDays, formatDayMonth, formatMonthName } from "@/lib/dates";
+import { ControlsRow } from "@/components/ControlsRow";
+import { diffInCalendarDays, formatDayMonth, formatMonthName, formatWeekday, isWeekend } from "@/lib/dates";
 import { relativeDaysLabel } from "@/lib/format";
 import { describeCoverage, getTimelineState, type TimelineState } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
@@ -64,7 +64,7 @@ export function Timeline() {
       </p>
 
       <div className="mt-4">
-        <HolidayFilterToggle />
+        <ControlsRow />
       </div>
 
       {!now ? (
@@ -102,7 +102,9 @@ export function Timeline() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-[15px] font-semibold leading-snug text-ink">{holiday.nombre}</p>
-                          <p className="text-xs text-ink-muted">{formatDayMonth(holiday.date, locale)}</p>
+                          <p className="text-xs text-ink-muted">
+                            {formatWeekday(holiday.date, locale)}, {formatDayMonth(holiday.date, locale)}
+                          </p>
                         </div>
                         <span className="shrink-0 whitespace-nowrap text-[11px] font-medium text-ink-faint">
                           {relativeDaysLabel(days)}
@@ -115,6 +117,9 @@ export function Timeline() {
                       </div>
                       {holiday.beneficiarios?.length ? (
                         <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
+                      ) : null}
+                      {isWeekend(holiday.date) ? (
+                        <p className="mt-1 text-[10px] italic text-ink-faint">Cae en fin de semana</p>
                       ) : null}
                     </li>
                   );

@@ -5,9 +5,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { HolidayFilterToggle } from "@/components/HolidayFilterToggle";
+import { ControlsRow } from "@/components/ControlsRow";
 import { getMonthGrid } from "@/lib/calendar";
-import { formatFullDate, formatMonthName, toKey, weekdayNameByIndex } from "@/lib/dates";
+import { formatFullDate, formatMonthName, isWeekend, toKey, weekdayNameByIndex } from "@/lib/dates";
 import { describeCoverage, getTodayStatus } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
 
@@ -52,7 +52,7 @@ export function CalendarView() {
       <h1 className="text-2xl font-bold text-ink">Calendario</h1>
 
       <div className="mt-4">
-        <HolidayFilterToggle />
+        <ControlsRow />
       </div>
 
       <div className="mt-5 flex items-center justify-between">
@@ -148,6 +148,9 @@ export function CalendarView() {
                     </div>
                     {holiday.beneficiarios?.length ? (
                       <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
+                    ) : null}
+                    {isWeekend(holiday.date) ? (
+                      <p className="mt-1 text-[10px] italic text-ink-faint">Cae en fin de semana</p>
                     ) : null}
                   </div>
                 ))}
