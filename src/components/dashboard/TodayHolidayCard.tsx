@@ -1,16 +1,18 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { HolidayNatureNote } from "@/components/HolidayNatureNote";
 import { formatFullDate } from "@/lib/dates";
-import { describeCoverage } from "@/lib/holidays";
+import { describeCoverage, type BridgeOpportunity } from "@/lib/holidays";
 import type { Holiday } from "@/types/holidays";
 
 interface Props {
   holiday: Holiday;
   locale: string;
   notas?: string;
+  bridgeOpportunities: BridgeOpportunity[];
 }
 
-export function TodayHolidayCard({ holiday, locale, notas }: Props) {
+export function TodayHolidayCard({ holiday, locale, notas, bridgeOpportunities }: Props) {
   const extra = holiday.beneficiarios?.length ? holiday.beneficiarios.join(", ") : notas;
 
   return (
@@ -28,6 +30,12 @@ export function TodayHolidayCard({ holiday, locale, notas }: Props) {
 
       <p className="mt-3 text-sm text-ink-muted">{formatFullDate(holiday.date, locale)}</p>
       {extra ? <p className="mt-2 text-xs leading-relaxed text-ink-faint">{extra}</p> : null}
+      <HolidayNatureNote
+        holiday={holiday}
+        bridgeOpportunities={bridgeOpportunities}
+        locale={locale}
+        className="mt-2"
+      />
     </Card>
   );
 }

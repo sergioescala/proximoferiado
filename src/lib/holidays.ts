@@ -32,6 +32,7 @@ export type TodayStatus =
   | { kind: "sunday" }
   | { kind: "workday" };
 
+/** Estado de un día cualquiera (no necesariamente "hoy"): feriado, domingo o laboral. */
 export function getTodayStatus(holidays: Holiday[], now: Date): TodayStatus {
   const today = startOfDay(now);
   const holidayToday = holidays.find((h) => isSameDay(h.date, today));
@@ -56,55 +57,6 @@ export function describeCoverage(holiday: Holiday): string {
   if (holiday.cobertura === "regional") return "Regional";
   if (holiday.cobertura === "comunal") return "Comunal";
   return holiday.cobertura;
-}
-
-export interface MonthCount {
-  monthIndex: number;
-  count: number;
-}
-
-export function getMonthlyDistribution(holidays: Holiday[]): MonthCount[] {
-  const counts = Array.from({ length: 12 }, (_, monthIndex) => ({ monthIndex, count: 0 }));
-  for (const h of holidays) counts[h.date.getMonth()]!.count += 1;
-  return counts;
-}
-
-export interface WeekdayCount {
-  weekdayIndex: number; // 0 = domingo ... 6 = sábado (convención de Date#getDay)
-  count: number;
-}
-
-export function getWeekdayDistribution(holidays: Holiday[]): WeekdayCount[] {
-  const counts = Array.from({ length: 7 }, (_, weekdayIndex) => ({ weekdayIndex, count: 0 }));
-  for (const h of holidays) counts[h.date.getDay()]!.count += 1;
-  return counts;
-}
-
-export interface GapInfo {
-  days: number;
-  from: Holiday;
-  to: Holiday;
-}
-
-export interface GapsResult {
-  max: GapInfo | null;
-  min: GapInfo | null;
-}
-
-/** Mayor y menor intervalo (en días) entre feriados consecutivos del año. */
-export function getGaps(holidays: Holiday[]): GapsResult {
-  if (holidays.length < 2) return { max: null, min: null };
-  let max: GapInfo | null = null;
-  let min: GapInfo | null = null;
-  for (let i = 1; i < holidays.length; i++) {
-    const from = holidays[i - 1]!;
-    const to = holidays[i]!;
-    const days = diffInCalendarDays(to.date, from.date);
-    if (days === 0) continue; // mismo día (ej. feriado nacional + regional coincidentes)
-    if (!max || days > max.days) max = { days, from, to };
-    if (!min || days < min.days) min = { days, from, to };
-  }
-  return { max, min };
 }
 
 export interface LongWeekend {
@@ -211,85 +163,64 @@ export function getBridgeDayOpportunities(holidays: Holiday[], year: number): Br
   return opportunities.sort((a, b) => a.holiday.date.getTime() - b.holiday.date.getTime());
 }
 
-/** Domingos restantes desde `now` (inclusive) hasta el 31 de diciembre de `year`. */
-export function getSundaysRemaining(now: Date, year: number): number {
-  const today = startOfDay(now);
-  const start = today.getFullYear() === year ? today : new Date(year, 0, 1);
-  const end = new Date(year, 11, 31);
-  if (start.getTime() > end.getTime()) return 0;
-
-  let count = 0;
-  let cursor = new Date(start);
-  // Avanza al primer domingo.
-  cursor = addDays(cursor, (7 - cursor.getDay()) % 7);
-  while (cursor.getTime() <= end.getTime()) {
-    count += 1;
-    cursor = addDays(cursor, 7);
-  }
-  return count;
+/** Busca si un feriado puntual es, además, una oportunidad de puente. */
+export function findBridgeOpportunity(
+  opportunities: BridgeOpportunity[],
+  holiday: Holiday
+): BridgeOpportunity | undefined {
+  return opportunities.find((o) => o.holiday.fecha === holiday.fecha && o.holiday.nombre === holiday.nombre);
 }
 
-export interface HolidayStats {
+export interface MonthSummary {
+  monthIndex: number;
+  /** Feriados de ese mes (nacionales + los específicos que apliquen según el filtro activo). */
+  holidays: Holiday[];
   total: number;
   nacionales: number;
   regionales: number;
   comunales: number;
-  restantes: number;
-  transcurridos: number;
-  irrenunciables: number;
-  domingosRestantes: number;
   /** Feriados de lunes a viernes: suman un día libre que no tendrías igual. */
   entreSemana: number;
   /** Feriados que caen sábado o domingo: no suman un día libre extra. */
   finDeSemana: number;
-  monthDistribution: MonthCount[];
-  monthMost: MonthCount | null;
-  monthLeast: MonthCount | null;
-  weekdayDistribution: WeekdayCount[];
-  gaps: GapsResult;
+  /** Domingos del mes (independiente de si hay feriados). */
+  domingos: number;
   longWeekends: LongWeekend[];
   bridgeOpportunities: BridgeOpportunity[];
 }
 
-export function getHolidayStats(data: HolidaysData, holidays: Holiday[], now: Date): HolidayStats {
-  const today = startOfDay(now);
-  const nacionales = holidays.filter((h) => h.cobertura === "nacional").length;
-  const regionales = holidays.filter((h) => h.cobertura === "regional").length;
-  const comunales = holidays.filter((h) => h.cobertura === "comunal").length;
-  const restantes = holidays.filter((h) => h.date.getTime() >= today.getTime()).length;
-  const transcurridos = holidays.filter((h) => h.date.getTime() < today.getTime()).length;
-  const irrenunciables = holidays.filter((h) => h.irrenunciable).length;
-  const entreSemana = holidays.filter((h) => !isWeekend(h.date)).length;
+/**
+ * Recorte de la información del año a un único mes, para mostrarla junto al
+ * calendario: solo lo que es relevante al navegar ese mes en particular.
+ */
+export function getMonthSummary(
+  holidays: Holiday[],
+  monthIndex: number,
+  year: number,
+  longWeekends: LongWeekend[],
+  bridgeOpportunities: BridgeOpportunity[]
+): MonthSummary {
+  const monthHolidays = holidays.filter((h) => h.date.getMonth() === monthIndex && h.date.getFullYear() === year);
+  const entreSemana = monthHolidays.filter((h) => !isWeekend(h.date)).length;
 
-  const monthDistribution = getMonthlyDistribution(holidays);
-  const monthsWithHolidays = monthDistribution.filter((m) => m.count > 0);
-  const monthMost = monthsWithHolidays.reduce<MonthCount | null>(
-    (best, m) => (!best || m.count > best.count ? m : best),
-    null
-  );
-  const monthLeast = monthsWithHolidays.reduce<MonthCount | null>(
-    (worst, m) => (!worst || m.count < worst.count ? m : worst),
-    null
-  );
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  let domingos = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
+    if (new Date(year, monthIndex, day).getDay() === 0) domingos += 1;
+  }
 
   return {
-    total: holidays.length,
-    nacionales,
-    regionales,
-    comunales,
-    restantes,
-    transcurridos,
-    irrenunciables,
-    domingosRestantes: getSundaysRemaining(now, data.anio),
+    monthIndex,
+    holidays: monthHolidays,
+    total: monthHolidays.length,
+    nacionales: monthHolidays.filter((h) => h.cobertura === "nacional").length,
+    regionales: monthHolidays.filter((h) => h.cobertura === "regional").length,
+    comunales: monthHolidays.filter((h) => h.cobertura === "comunal").length,
     entreSemana,
-    finDeSemana: holidays.length - entreSemana,
-    monthDistribution,
-    monthMost,
-    monthLeast,
-    weekdayDistribution: getWeekdayDistribution(holidays),
-    gaps: getGaps(holidays),
-    longWeekends: getLongWeekends(holidays, data.anio),
-    bridgeOpportunities: getBridgeDayOpportunities(holidays, data.anio),
+    finDeSemana: monthHolidays.length - entreSemana,
+    domingos,
+    longWeekends: longWeekends.filter((lw) => lw.start.getMonth() === monthIndex || lw.end.getMonth() === monthIndex),
+    bridgeOpportunities: bridgeOpportunities.filter((o) => o.holiday.date.getMonth() === monthIndex),
   };
 }
 

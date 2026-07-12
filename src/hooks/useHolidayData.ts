@@ -5,7 +5,14 @@ import { useHolidayFilter } from "@/context/HolidayFilterContext";
 import { useNow } from "@/hooks/useNow";
 import { holidaysData } from "@/lib/data";
 import { toKey } from "@/lib/dates";
-import { getHolidayStats, getLastHoliday, getNextHoliday, getTodayStatus, normalizeHolidays } from "@/lib/holidays";
+import {
+  getBridgeDayOpportunities,
+  getLastHoliday,
+  getLongWeekends,
+  getNextHoliday,
+  getTodayStatus,
+  normalizeHolidays,
+} from "@/lib/holidays";
 
 /**
  * Punto de entrada único para toda la data derivada del JSON. `now` se
@@ -14,7 +21,7 @@ import { getHolidayStats, getLastHoliday, getNextHoliday, getTodayStatus, normal
  *
  * Respeta el filtro global "solo nacionales / incluir regionales y
  * comunales": todo lo que devuelve este hook (próximo/último feriado,
- * timeline, calendario, estadísticas) ya viene filtrado.
+ * timeline, calendario, fines de semana largos, puentes) ya viene filtrado.
  */
 export function useHolidayData() {
   const now = useNow(1000);
@@ -33,8 +40,9 @@ export function useHolidayData() {
     const todayStatus = getTodayStatus(holidays, now);
     const next = getNextHoliday(holidays, now);
     const last = getLastHoliday(holidays, now);
-    const stats = getHolidayStats(holidaysData, holidays, now);
-    return { todayStatus, next, last, stats };
+    const longWeekends = getLongWeekends(holidays, holidaysData.anio);
+    const bridgeOpportunities = getBridgeDayOpportunities(holidays, holidaysData.anio);
+    return { todayStatus, next, last, longWeekends, bridgeOpportunities };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todayKey, holidays]);
 

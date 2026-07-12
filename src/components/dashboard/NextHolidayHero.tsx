@@ -1,14 +1,17 @@
 import { Card } from "@/components/ui/Card";
+import { HolidayNatureNote } from "@/components/HolidayNatureNote";
 import { diffInCalendarDays, formatDayMonth, formatWeekday } from "@/lib/dates";
+import type { BridgeOpportunity } from "@/lib/holidays";
 import type { Holiday } from "@/types/holidays";
 
 interface Props {
   holiday: Holiday | null;
   now: Date;
   locale: string;
+  bridgeOpportunities: BridgeOpportunity[];
 }
 
-export function NextHolidayHero({ holiday, now, locale }: Props) {
+export function NextHolidayHero({ holiday, now, locale, bridgeOpportunities }: Props) {
   if (!holiday) {
     return (
       <Card className="mx-5 mt-4 animate-fade-up bg-gradient-to-br from-accent/[0.1] to-transparent text-center">
@@ -31,6 +34,13 @@ export function NextHolidayHero({ holiday, now, locale }: Props) {
         <span className="text-5xl font-black tabular-nums leading-none text-accent">{days}</span>
         <span className="text-sm font-medium text-ink-muted">{days === 1 ? "día" : "días"}</span>
       </div>
+
+      <HolidayNatureNote
+        holiday={holiday}
+        bridgeOpportunities={bridgeOpportunities}
+        locale={locale}
+        className="mt-3"
+      />
     </Card>
   );
 }

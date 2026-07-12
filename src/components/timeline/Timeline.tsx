@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ControlsRow } from "@/components/ControlsRow";
-import { diffInCalendarDays, formatDayMonth, formatMonthName, formatWeekday, isWeekend } from "@/lib/dates";
+import { HolidayNatureNote } from "@/components/HolidayNatureNote";
+import { diffInCalendarDays, formatDayMonth, formatMonthName, formatWeekday } from "@/lib/dates";
 import { relativeDaysLabel } from "@/lib/format";
 import { describeCoverage, getTimelineState, type TimelineState } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
@@ -33,7 +34,8 @@ function groupByMonth(holidays: Holiday[]): [number, Holiday[]][] {
 }
 
 export function Timeline() {
-  const { now, holidays, next, data } = useHolidayData();
+  const { now, holidays, next, data, bridgeOpportunities } = useHolidayData();
+  const bridges = bridgeOpportunities ?? [];
   const locale = data.locale ?? "es";
   const groups = useMemo(() => groupByMonth(holidays), [holidays]);
 
@@ -118,9 +120,12 @@ export function Timeline() {
                       {holiday.beneficiarios?.length ? (
                         <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
                       ) : null}
-                      {isWeekend(holiday.date) ? (
-                        <p className="mt-1 text-[10px] italic text-ink-faint">Cae en fin de semana</p>
-                      ) : null}
+                      <HolidayNatureNote
+                        holiday={holiday}
+                        bridgeOpportunities={bridges}
+                        locale={locale}
+                        className="mt-1"
+                      />
                     </li>
                   );
                 })}
