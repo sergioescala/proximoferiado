@@ -1,0 +1,143 @@
+{
+  "pais": "Chile",
+  "anio": 2026,
+  "actualizado": "2026-07-12",
+  "notas": "Feriados oficiales de Chile para el año 2026. Un feriado 'irrenunciable' obliga al cierre del comercio (los trabajadores no pueden ser requeridos para prestar servicios ese día, salvo excepciones legales).",
+  "reglaGeneral": {
+    "descripcion": "Todos los días domingo son feriados.",
+    "tipo": "Civil",
+    "alcance": "nacional"
+  },
+  "feriadosGenerales": [
+    {
+      "fecha": "2026-01-01",
+      "diaSemana": "Jueves",
+      "nombre": "Año Nuevo",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2026-04-03",
+      "diaSemana": "Viernes",
+      "nombre": "Viernes Santo",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-04-04",
+      "diaSemana": "Sábado",
+      "nombre": "Sábado Santo",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-05-01",
+      "diaSemana": "Viernes",
+      "nombre": "Día Nacional del Trabajo",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2026-05-21",
+      "diaSemana": "Jueves",
+      "nombre": "Día de las Glorias Navales",
+      "tipo": "Civil",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-06-21",
+      "diaSemana": "Domingo",
+      "nombre": "Día Nacional de los Pueblos Indígenas",
+      "tipo": "Civil",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-06-29",
+      "diaSemana": "Lunes",
+      "nombre": "San Pedro y San Pablo",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-07-16",
+      "diaSemana": "Jueves",
+      "nombre": "Día de la Virgen del Carmen",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-08-15",
+      "diaSemana": "Sábado",
+      "nombre": "Asunción de la Virgen",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-09-18",
+      "diaSemana": "Viernes",
+      "nombre": "Independencia Nacional",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2026-09-19",
+      "diaSemana": "Sábado",
+      "nombre": "Día de las Glorias del Ejército",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2026-10-12",
+      "diaSemana": "Lunes",
+      "nombre": "Encuentro de Dos Mundos",
+      "tipo": "Civil",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-10-31",
+      "diaSemana": "Sábado",
+      "nombre": "Día de las Iglesias Evangélicas y Protestantes",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-11-01",
+      "diaSemana": "Domingo",
+      "nombre": "Día de Todos los Santos",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-12-08",
+      "diaSemana": "Martes",
+      "nombre": "Inmaculada Concepción",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2026-12-25",
+      "diaSemana": "Viernes",
+      "nombre": "Navidad",
+      "tipo": "Religioso",
+      "irrenunciable": true
+    }
+  ],
+  "feriadosEspecificos": [
+    {
+      "fecha": "2026-06-07",
+      "diaSemana": "Domingo",
+      "nombre": "Asalto y Toma del Morro de Arica",
+      "tipo": "Civil",
+      "alcance": "regional",
+      "beneficiarios": ["Región de Arica y Parinacota"]
+    },
+    {
+      "fecha": "2026-08-20",
+      "diaSemana": "Jueves",
+      "nombre": "Nacimiento del Prócer de la Independencia",
+      "tipo": "Civil",
+      "alcance": "comunal",
+      "beneficiarios": ["Chillán", "Chillán Viejo"]
+    }
+  ]
+}
