@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/Card";
-import { diffInCalendarDays, formatDayMonth } from "@/lib/dates";
+import { diffInCalendarDays, formatDayMonth, formatWeekday } from "@/lib/dates";
 import type { Holiday } from "@/types/holidays";
 
 interface Props {
@@ -26,7 +26,9 @@ export function LastHolidayCard({ holiday, now, locale }: Props) {
       <div className="mt-1.5 flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-base font-semibold text-ink">{holiday.nombre}</p>
-          <p className="text-xs text-ink-muted">{formatDayMonth(holiday.date, locale)}</p>
+          <p className="text-xs text-ink-muted">
+            {formatWeekday(holiday.date, locale)}, {formatDayMonth(holiday.date, locale)}
+          </p>
         </div>
         <p className="shrink-0 whitespace-nowrap text-xs font-medium text-ink-faint">
           hace {days} {days === 1 ? "día" : "días"}

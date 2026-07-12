@@ -51,20 +51,6 @@ export function getLastHoliday(holidays: Holiday[], now: Date): Holiday | null {
   return past.at(-1) ?? null;
 }
 
-/** % transcurrido entre el feriado anterior (o el 1 de enero) y el próximo feriado. */
-export function getNextHolidayProgress(
-  previous: Holiday | null,
-  next: Holiday,
-  now: Date
-): number {
-  const today = startOfDay(now);
-  const start = previous ? previous.date : new Date(next.date.getFullYear(), 0, 1);
-  const total = next.date.getTime() - start.getTime();
-  if (total <= 0) return 100;
-  const elapsed = today.getTime() - start.getTime();
-  return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
-}
-
 export function describeCoverage(holiday: Holiday): string {
   if (holiday.cobertura === "nacional") return "Nacional";
   if (holiday.cobertura === "regional") return "Regional";
