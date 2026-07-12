@@ -3,19 +3,23 @@
 import { Header } from "@/components/dashboard/Header";
 import { LastHolidayCard } from "@/components/dashboard/LastHolidayCard";
 import { NextHolidayHero } from "@/components/dashboard/NextHolidayHero";
-import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { TodayHolidayCard } from "@/components/dashboard/TodayHolidayCard";
 import { TodayStatus } from "@/components/dashboard/TodayStatus";
+import { HolidayFilterToggle } from "@/components/HolidayFilterToggle";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useHolidayData } from "@/hooks/useHolidayData";
 
 export function Dashboard() {
-  const { now, data, todayStatus, next, last, progress, stats } = useHolidayData();
+  const { now, data, todayStatus, next, last } = useHolidayData();
   const locale = data.locale ?? "es";
 
   return (
     <main className="flex flex-1 flex-col pb-8">
       <Header data={data} />
+
+      <div className="mt-3 px-5">
+        <HolidayFilterToggle />
+      </div>
 
       <TodayStatus now={now} status={todayStatus ?? null} locale={locale} />
 
@@ -24,10 +28,10 @@ export function Dashboard() {
       ) : null}
 
       {now ? (
-        <NextHolidayHero holiday={next ?? null} now={now} progress={progress ?? null} locale={locale} />
+        <NextHolidayHero holiday={next ?? null} now={now} locale={locale} />
       ) : (
         <div className="mx-5 mt-4">
-          <Skeleton className="h-52 rounded-xl3" />
+          <Skeleton className="h-40 rounded-xl3" />
         </div>
       )}
 
@@ -36,16 +40,6 @@ export function Dashboard() {
       ) : (
         <div className="mx-5 mt-4">
           <Skeleton className="h-20 rounded-xl3" />
-        </div>
-      )}
-
-      {stats ? (
-        <StatsGrid stats={stats} locale={locale} />
-      ) : (
-        <div className="mx-5 mt-6 grid grid-cols-2 gap-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-xl3" />
-          ))}
         </div>
       )}
     </main>

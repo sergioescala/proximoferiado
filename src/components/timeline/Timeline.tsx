@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { HolidayFilterToggle } from "@/components/HolidayFilterToggle";
 import { diffInCalendarDays, formatDayMonth, formatMonthName } from "@/lib/dates";
 import { relativeDaysLabel } from "@/lib/format";
 import { describeCoverage, getTimelineState, type TimelineState } from "@/lib/holidays";
@@ -15,6 +16,10 @@ const STATE_META: Record<TimelineState, { dot: string; label: string }> = {
   proximo: { dot: "bg-accent ring-4 ring-accent/20", label: "Próximo" },
   futuro: { dot: "border-2 border-ink-faint/50 bg-surface", label: "Futuro" },
 };
+
+function itemKey(holiday: Holiday): string {
+  return `${holiday.fecha}-${holiday.nombre}`;
+}
 
 function groupByMonth(holidays: Holiday[]): [number, Holiday[]][] {
   const map = new Map<number, Holiday[]>();
@@ -32,12 +37,35 @@ export function Timeline() {
   const locale = data.locale ?? "es";
   const groups = useMemo(() => groupByMonth(holidays), [holidays]);
 
+  const itemRefs = useRef(new Map<string, HTMLLIElement>());
+  const hasAutoScrolled = useRef(false);
+
+  // Al entrar a la línea de tiempo, la posiciona directamente en el feriado
+  // de hoy (o si no hay, en el próximo) para no tener que buscarlo a mano.
+  // Se hace una sola vez: `now` cambia cada segundo y no debe reintentar.
+  useEffect(() => {
+    if (!now || hasAutoScrolled.current || holidays.length === 0) return;
+    hasAutoScrolled.current = true;
+
+    const target =
+      holidays.find((h) => getTimelineState(h, now, next ?? null) === "hoy") ??
+      holidays.find((h) => getTimelineState(h, now, next ?? null) === "proximo");
+    if (!target) return;
+
+    const el = itemRefs.current.get(itemKey(target));
+    el?.scrollIntoView({ block: "center" });
+  }, [now, holidays, next]);
+
   return (
     <main className="flex-1 px-5 pt-6">
       <h1 className="text-2xl font-bold text-ink">Línea de tiempo</h1>
       <p className="mt-1 text-sm text-ink-muted">
         {holidays.length} feriados en {data.anio}
       </p>
+
+      <div className="mt-4">
+        <HolidayFilterToggle />
+      </div>
 
       {!now ? (
         <div className="mt-6 space-y-4">
@@ -59,7 +87,14 @@ export function Timeline() {
                   const days = diffInCalendarDays(holiday.date, now);
 
                   return (
-                    <li key={`${holiday.fecha}-${holiday.nombre}`} className="relative pb-6 last:pb-0">
+                    <li
+                      key={itemKey(holiday)}
+                      ref={(el) => {
+                        if (el) itemRefs.current.set(itemKey(holiday), el);
+                        else itemRefs.current.delete(itemKey(holiday));
+                      }}
+                      className="relative scroll-mt-24 pb-6 last:pb-0"
+                    >
                       <span
                         className={`absolute -left-[25px] top-1 h-3 w-3 rounded-full ${meta.dot}`}
                         aria-hidden="true"

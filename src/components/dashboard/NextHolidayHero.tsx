@@ -1,16 +1,14 @@
 import { Card } from "@/components/ui/Card";
-import { ProgressBar } from "@/components/ui/ProgressBar";
 import { diffInCalendarDays, formatDayMonth, formatWeekday } from "@/lib/dates";
 import type { Holiday } from "@/types/holidays";
 
 interface Props {
   holiday: Holiday | null;
   now: Date;
-  progress: number | null;
   locale: string;
 }
 
-export function NextHolidayHero({ holiday, now, progress, locale }: Props) {
+export function NextHolidayHero({ holiday, now, locale }: Props) {
   if (!holiday) {
     return (
       <Card className="mx-5 mt-4 animate-fade-up bg-gradient-to-br from-accent/[0.1] to-transparent text-center">
@@ -33,13 +31,6 @@ export function NextHolidayHero({ holiday, now, progress, locale }: Props) {
         <span className="text-5xl font-black tabular-nums leading-none text-accent">{days}</span>
         <span className="text-sm font-medium text-ink-muted">{days === 1 ? "día" : "días"}</span>
       </div>
-
-      {progress !== null ? (
-        <div className="mt-5">
-          <ProgressBar value={progress} />
-          <p className="mt-1.5 text-[11px] text-ink-faint">{progress}% del camino recorrido</p>
-        </div>
-      ) : null}
     </Card>
   );
 }

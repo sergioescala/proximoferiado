@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { HolidayFilterToggle } from "@/components/HolidayFilterToggle";
 import { getMonthGrid } from "@/lib/calendar";
 import { formatFullDate, formatMonthName, toKey, weekdayNameByIndex } from "@/lib/dates";
 import { describeCoverage, getTodayStatus } from "@/lib/holidays";
@@ -50,6 +51,10 @@ export function CalendarView() {
     <main className="flex-1 px-5 pt-6">
       <h1 className="text-2xl font-bold text-ink">Calendario</h1>
 
+      <div className="mt-4">
+        <HolidayFilterToggle />
+      </div>
+
       <div className="mt-5 flex items-center justify-between">
         <button
           type="button"
@@ -90,24 +95,15 @@ export function CalendarView() {
             <button
               key={key}
               type="button"
-              disabled={!day.inMonth}
               onClick={() => setSelectedKey((prev) => (prev === key ? null : key))}
               className={`relative mx-auto flex h-10 w-10 flex-col items-center justify-center rounded-2xl text-sm transition-all active:scale-95 ${
-                !day.inMonth
-                  ? "text-ink-faint/30"
-                  : hasHoliday
-                    ? "font-semibold text-holiday"
-                    : day.isSunday
-                      ? "text-sunday"
-                      : "text-ink"
-              } ${hasHoliday && day.inMonth ? "bg-holiday/[0.12]" : ""} ${
+                hasHoliday ? "font-semibold text-holiday" : day.isSunday ? "text-sunday" : "text-ink"
+              } ${hasHoliday ? "bg-holiday/[0.12]" : ""} ${!day.inMonth ? "opacity-40" : ""} ${
                 isSelected ? "bg-accent/[0.16] ring-2 ring-accent" : ""
               } ${day.isToday ? "ring-2 ring-accent" : ""}`}
             >
               {day.date.getDate()}
-              {hasHoliday && day.inMonth ? (
-                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-holiday" aria-hidden="true" />
-              ) : null}
+              {hasHoliday ? <span className="absolute bottom-1 h-1 w-1 rounded-full bg-holiday" aria-hidden="true" /> : null}
             </button>
           );
         })}

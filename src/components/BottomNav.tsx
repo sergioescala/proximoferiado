@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, History, House, type LucideIcon } from "lucide-react";
+import { BarChart3, CalendarDays, History, House, type LucideIcon } from "lucide-react";
 
 interface Tab {
   href: string;
@@ -14,6 +14,7 @@ const TABS: Tab[] = [
   { href: "/", label: "Inicio", icon: House },
   { href: "/timeline", label: "Línea de tiempo", icon: History },
   { href: "/calendar", label: "Calendario", icon: CalendarDays },
+  { href: "/stats", label: "Resumen", icon: BarChart3 },
 ];
 
 function normalize(path: string): string {

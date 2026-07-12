@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { BottomNav } from "@/components/BottomNav";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { HolidayFilterProvider } from "@/context/HolidayFilterContext";
 import { holidaysData } from "@/lib/data";
 import "./globals.css";
 
@@ -53,13 +54,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <body className="min-h-screen bg-canvas font-sans antialiased">
-        <div
-          className="mx-auto flex min-h-screen max-w-md flex-col"
-          style={{ paddingBottom: "calc(6rem + env(safe-area-inset-bottom))" }}
-        >
-          {children}
-        </div>
-        <BottomNav />
+        <HolidayFilterProvider>
+          <div
+            className="mx-auto flex min-h-screen max-w-md flex-col"
+            style={{ paddingBottom: "calc(6rem + env(safe-area-inset-bottom))" }}
+          >
+            {children}
+          </div>
+          <BottomNav />
+        </HolidayFilterProvider>
         <ServiceWorkerRegister />
       </body>
     </html>
