@@ -1,0 +1,67 @@
+name: Deploy a GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Solo un despliegue a la vez; no cancela uno en curso para no dejar Pages
+# en un estado intermedio.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Un repo de proyecto (usuario.github.io/mi-repo) necesita basePath
+      # "/mi-repo". Un repo de usuario/organización (usuario.github.io)
+      # se sirve en la raíz, sin basePath.
+      - name: Calcular basePath según el repositorio
+        id: basepath
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          if [[ "$REPO_NAME" == *.github.io ]]; then
+            echo "value=" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=/$REPO_NAME" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build (exportación 100% estática)
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.basepath.outputs.value }}
+        run: npm run build
+
+      - name: Subir artefacto de Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

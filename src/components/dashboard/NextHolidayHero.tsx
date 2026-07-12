@@ -1,0 +1,45 @@
+import { Card } from "@/components/ui/Card";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { diffInCalendarDays, formatDayMonth, formatWeekday } from "@/lib/dates";
+import type { Holiday } from "@/types/holidays";
+
+interface Props {
+  holiday: Holiday | null;
+  now: Date;
+  progress: number | null;
+  locale: string;
+}
+
+export function NextHolidayHero({ holiday, now, progress, locale }: Props) {
+  if (!holiday) {
+    return (
+      <Card className="mx-5 mt-4 animate-fade-up bg-gradient-to-br from-accent/[0.1] to-transparent text-center">
+        <p className="text-sm font-medium text-ink-muted">No quedan más feriados por delante este año. 🎉</p>
+      </Card>
+    );
+  }
+
+  const days = diffInCalendarDays(holiday.date, now);
+
+  return (
+    <Card className="relative mx-5 mt-4 animate-fade-up overflow-hidden bg-gradient-to-br from-accent/[0.12] via-surface to-surface">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-accent">Próximo feriado</p>
+      <h2 className="mt-1 text-2xl font-bold leading-tight text-ink">{holiday.nombre}</h2>
+      <p className="mt-1 text-sm text-ink-muted">
+        {formatWeekday(holiday.date, locale)}, {formatDayMonth(holiday.date, locale)}
+      </p>
+
+      <div className="mt-5 flex items-baseline gap-1.5">
+        <span className="text-5xl font-black tabular-nums leading-none text-accent">{days}</span>
+        <span className="text-sm font-medium text-ink-muted">{days === 1 ? "día" : "días"}</span>
+      </div>
+
+      {progress !== null ? (
+        <div className="mt-5">
+          <ProgressBar value={progress} />
+          <p className="mt-1.5 text-[11px] text-ink-faint">{progress}% del camino recorrido</p>
+        </div>
+      ) : null}
+    </Card>
+  );
+}
