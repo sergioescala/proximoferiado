@@ -69,7 +69,7 @@ export function buildStatItems(stats: HolidayStats, locale: string): StatItem[] 
       id: "puente",
       label: "Feriados puente",
       value: String(stats.bridgeOpportunities.length),
-      caption: "Martes o jueves + 1 día libre",
+      caption: "Suman días libres con 1 día de vacaciones",
     },
     {
       id: "lunes",
