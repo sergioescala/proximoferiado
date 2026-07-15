@@ -9,8 +9,8 @@ import { ControlsRow } from "@/components/ControlsRow";
 import { HolidayNatureNote } from "@/components/HolidayNatureNote";
 import { IrrenunciableNote } from "@/components/IrrenunciableNote";
 import { MonthSummary } from "@/components/calendar/MonthSummary";
-import { getMonthGrid, type CalendarDay } from "@/lib/calendar";
-import { formatFullDate, formatMonthName, toKey, weekdayNameByIndex } from "@/lib/dates";
+import { getMonthGrid, isCalendarMoveKey, moveFocusDate, type CalendarDay } from "@/lib/calendar";
+import { formatFullDate, formatMonthName, parseISODate, toKey, weekdayNameByIndex } from "@/lib/dates";
 import { describeCoverage, getMonthSummary, getTodayStatus } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
 
@@ -31,7 +31,21 @@ export function CalendarView() {
   const locale = data.locale ?? "es";
   const [month, setMonth] = useState<number | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const touchStartX = useRef<number | null>(null);
+  const dayRefs = useRef(new Map<string, HTMLButtonElement>());
+  const pendingFocusKey = useRef<string | null>(null);
+
+  // Mueve el foco del DOM al día pedido por teclado una vez que la grilla
+  // (posiblemente de otro mes) ya se renderizó.
+  useEffect(() => {
+    if (!pendingFocusKey.current) return;
+    const el = dayRefs.current.get(pendingFocusKey.current);
+    if (el) {
+      el.focus();
+      pendingFocusKey.current = null;
+    }
+  });
 
   useEffect(() => {
     if (month === null && now) {
@@ -68,6 +82,38 @@ export function CalendarView() {
 
   const goToPreviousMonth = () => setMonth((m) => (m !== null ? Math.max(0, m - 1) : m));
   const goToNextMonth = () => setMonth((m) => (m !== null ? Math.min(11, m + 1) : m));
+
+  // Roving tabindex: una sola celda es tabulable. Por defecto el día
+  // enfocado por teclado; si no, hoy; si no, el 1 del mes mostrado.
+  const focusableKey =
+    (focusedKey && grid.some((day) => toKey(day.date) === focusedKey) ? focusedKey : null) ??
+    grid.filter((day) => day.isToday && day.inMonth).map((day) => toKey(day.date))[0] ??
+    toKey(grid.find((day) => day.inMonth)!.date);
+
+  const focusDay = (date: Date) => {
+    const key = toKey(date);
+    pendingFocusKey.current = key;
+    setFocusedKey(key);
+    if (date.getMonth() !== month) setMonth(date.getMonth());
+  };
+
+  const handleGridKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "PageUp" || e.key === "PageDown") {
+      // Mismo día del mes anterior/siguiente (recortado al largo del mes).
+      const targetMonth = month + (e.key === "PageUp" ? -1 : 1);
+      if (targetMonth < 0 || targetMonth > 11) return;
+      e.preventDefault();
+      const dayOfMonth = parseISODate(focusableKey).getDate();
+      const daysInTarget = new Date(data.anio, targetMonth + 1, 0).getDate();
+      focusDay(new Date(data.anio, targetMonth, Math.min(dayOfMonth, daysInTarget)));
+      return;
+    }
+    if (!isCalendarMoveKey(e.key)) return;
+    e.preventDefault();
+    const next = moveFocusDate(parseISODate(focusableKey), e.key);
+    if (next.getFullYear() !== data.anio) return;
+    focusDay(next);
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0]?.clientX ?? null;
@@ -116,9 +162,10 @@ export function CalendarView() {
         className="mt-4 grid grid-cols-7 gap-y-1 text-center"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
+        onKeyDown={handleGridKeyDown}
       >
         {weekdayLabels.map((label, i) => (
-          <span key={i} className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
+          <span key={i} className="text-eyebrow font-semibold uppercase text-ink-faint">
             {label}
           </span>
         ))}
@@ -132,8 +179,14 @@ export function CalendarView() {
             <button
               key={key}
               type="button"
+              ref={(el) => {
+                if (el) dayRefs.current.set(key, el);
+                else dayRefs.current.delete(key);
+              }}
+              tabIndex={key === focusableKey ? 0 : -1}
               aria-label={describeDayForScreenReader(day, locale)}
               aria-pressed={isSelected}
+              onFocus={() => setFocusedKey(key)}
               onClick={() => setSelectedKey((prev) => (prev === key ? null : key))}
               className={`relative mx-auto flex h-10 w-10 flex-col items-center justify-center rounded-2xl text-sm transition-all active:scale-95 ${
                 hasHoliday ? "font-semibold text-holiday" : day.isSunday ? "text-sunday" : "text-ink"
@@ -147,9 +200,9 @@ export function CalendarView() {
           );
         })}
       </div>
-      <p className="mt-1 text-center text-[10px] text-ink-faint">Deslizá para cambiar de mes</p>
+      <p className="mt-1 text-center text-2xs text-ink-faint md:hidden">Deslizá para cambiar de mes</p>
 
-      <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-ink-faint">
+      <div className="mt-3 flex flex-wrap gap-3 text-2xs text-ink-faint">
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full ring-2 ring-accent" /> Hoy
         </span>
@@ -189,7 +242,7 @@ export function CalendarView() {
                       {holiday.irrenunciable ? <Badge tone="workday">Irrenunciable</Badge> : null}
                     </div>
                     {holiday.beneficiarios?.length ? (
-                      <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
+                      <p className="mt-1.5 text-2xs text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
                     ) : null}
                     <IrrenunciableNote irrenunciable={holiday.irrenunciable} className="mt-1" />
                     <HolidayNatureNote

@@ -16,7 +16,8 @@
   --border: 228 228 231;
   --ink: 24 24 27;
   --ink-muted: 82 82 91;
-  --ink-faint: 161 161 170;
+  --ink-faint: 113 113 122;
+  --ink-ghost: 161 161 170;
   --accent: 37 99 235;
   --accent-ink: 255 255 255;
   --holiday: 22 163 74;
@@ -32,7 +33,8 @@
     --border: 39 39 42;
     --ink: 250 250 250;
     --ink-muted: 165 165 172;
-    --ink-faint: 96 96 104;
+    --ink-faint: 138 138 148;
+    --ink-ghost: 96 96 104;
     --accent: 96 165 250;
     --accent-ink: 15 23 42;
     --holiday: 74 222 128;
@@ -48,7 +50,8 @@
   --border: 228 228 231;
   --ink: 24 24 27;
   --ink-muted: 82 82 91;
-  --ink-faint: 161 161 170;
+  --ink-faint: 113 113 122;
+  --ink-ghost: 161 161 170;
   --accent: 37 99 235;
   --accent-ink: 255 255 255;
   --holiday: 22 163 74;
@@ -63,7 +66,8 @@
   --border: 39 39 42;
   --ink: 250 250 250;
   --ink-muted: 165 165 172;
-  --ink-faint: 96 96 104;
+  --ink-faint: 138 138 148;
+  --ink-ghost: 96 96 104;
   --accent: 96 165 250;
   --accent-ink: 15 23 42;
   --holiday: 74 222 128;
@@ -114,4 +118,41 @@ body {
     rgb(var(--border) / 0.5) 63%
   );
   background-size: 400% 100%;
+}
+
+@layer components {
+  /* Feedback táctil/click unificado para todo elemento presionable. */
+  .pressable {
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+  .pressable:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Transición entre pestañas (View Transitions API; los navegadores sin
+   soporte simplemente navegan sin animación). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+}
+
+/*
+ * Con preferencia de movimiento reducido se anulan de un golpe todas las
+ * animaciones y transiciones (fade-up, shimmer, pressable, view
+ * transitions, etc.) sin tener que condicionar cada componente. Se usa una
+ * duración casi nula en vez de `none` para que los eventos de fin de
+ * animación sigan disparándose.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto !important;
+  }
 }

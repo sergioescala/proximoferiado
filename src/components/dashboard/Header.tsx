@@ -16,7 +16,7 @@ export function Header({ data }: { data: HolidaysData }) {
           <p className="text-[15px] font-semibold leading-tight text-ink">
             {data.pais} <span className="text-ink-faint">· {data.anio}</span>
           </p>
-          <p className="text-[11px] leading-tight text-ink-faint">
+          <p className="text-2xs leading-tight text-ink-faint">
             Actualizado {formatDayMonth(parseISODate(data.actualizado), locale)}
           </p>
         </div>

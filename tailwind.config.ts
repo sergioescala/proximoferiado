@@ -2,6 +2,8 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: "media",
+  // Evita que los estilos hover: queden "pegados" tras un tap en táctil.
+  future: { hoverOnlyWhenSupported: true },
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -13,6 +15,7 @@ const config: Config = {
         ink: "rgb(var(--ink) / <alpha-value>)",
         "ink-muted": "rgb(var(--ink-muted) / <alpha-value>)",
         "ink-faint": "rgb(var(--ink-faint) / <alpha-value>)",
+        "ink-ghost": "rgb(var(--ink-ghost) / <alpha-value>)",
         accent: "rgb(var(--accent) / <alpha-value>)",
         "accent-ink": "rgb(var(--accent-ink) / <alpha-value>)",
         holiday: "rgb(var(--holiday) / <alpha-value>)",
@@ -35,6 +38,11 @@ const config: Config = {
         xl2: "1.25rem",
         xl3: "1.75rem",
       },
+      fontSize: {
+        // 12px es el tamaño mínimo de la app; nada de texto por debajo.
+        "2xs": ["0.75rem", { lineHeight: "1rem" }],
+        eyebrow: ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.06em" }],
+      },
       keyframes: {
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(8px)" },
@@ -52,12 +60,22 @@ const config: Config = {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "slide-in-l": {
+          "0%": { opacity: "0", transform: "translateX(-16px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "slide-in-r": {
+          "0%": { opacity: "0", transform: "translateX(16px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
         "fade-in": "fade-in 0.4s ease-out both",
         "pulse-soft": "pulse-soft 2.2s ease-in-out infinite",
         shimmer: "shimmer 1.8s linear infinite",
+        "slide-in-l": "slide-in-l 0.3s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "slide-in-r": "slide-in-r 0.3s cubic-bezier(0.16, 1, 0.3, 1) both",
       },
       boxShadow: {
         soft: "0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.12)",

@@ -14,6 +14,34 @@ function mondayFirstIndex(date: Date): number {
   return (date.getDay() + 6) % 7;
 }
 
+export type CalendarMoveKey = "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown" | "Home" | "End";
+
+export function isCalendarMoveKey(key: string): key is CalendarMoveKey {
+  return ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(key);
+}
+
+/**
+ * Día al que se mueve el foco en la grilla según la tecla presionada
+ * (patrón ARIA de grilla de calendario). Home/End van al lunes/domingo de
+ * la misma semana. Puede cruzar de mes; quien llama decide si seguirlo.
+ */
+export function moveFocusDate(date: Date, key: CalendarMoveKey): Date {
+  switch (key) {
+    case "ArrowLeft":
+      return addDays(date, -1);
+    case "ArrowRight":
+      return addDays(date, 1);
+    case "ArrowUp":
+      return addDays(date, -7);
+    case "ArrowDown":
+      return addDays(date, 7);
+    case "Home":
+      return addDays(date, -mondayFirstIndex(date));
+    case "End":
+      return addDays(date, 6 - mondayFirstIndex(date));
+  }
+}
+
 /** Genera la grilla de un mes (siempre en semanas completas, lunes a domingo). */
 export function getMonthGrid(year: number, monthIndex: number, holidays: Holiday[], now: Date): CalendarDay[] {
   const firstOfMonth = new Date(year, monthIndex, 1);

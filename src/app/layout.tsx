@@ -94,9 +94,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
       </head>
       <body className="min-h-screen bg-canvas font-sans antialiased">
+        <a
+          href="#contenido"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
+        >
+          Saltar al contenido
+        </a>
         <ThemeProvider>
           <HolidayFilterProvider>
             <div
+              id="contenido"
               className="mx-auto flex min-h-screen max-w-md flex-col"
               style={{ paddingBottom: "calc(6rem + env(safe-area-inset-bottom))" }}
             >

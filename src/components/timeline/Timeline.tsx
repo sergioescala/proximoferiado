@@ -8,16 +8,17 @@ import { ControlsRow } from "@/components/ControlsRow";
 import { HolidayNatureNote } from "@/components/HolidayNatureNote";
 import { IrrenunciableNote } from "@/components/IrrenunciableNote";
 import { diffInCalendarDays, formatDayMonth, formatMonthName, formatWeekday } from "@/lib/dates";
+import { prefersReducedMotion } from "@/lib/dom";
 import { relativeDaysLabel } from "@/lib/format";
 import { describeCoverage, getTimelineState, type TimelineState } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
 import type { Holiday } from "@/types/holidays";
 
 const STATE_META: Record<TimelineState, { dot: string; label: string }> = {
-  pasado: { dot: "bg-ink-faint/50", label: "Pasado" },
+  pasado: { dot: "bg-ink-ghost/60", label: "Pasado" },
   hoy: { dot: "bg-holiday ring-4 ring-holiday/20", label: "Hoy" },
   proximo: { dot: "bg-accent ring-4 ring-accent/20", label: "Próximo" },
-  futuro: { dot: "border-2 border-ink-faint/50 bg-surface", label: "Futuro" },
+  futuro: { dot: "border-2 border-ink-ghost/60 bg-surface", label: "Futuro" },
 };
 
 function itemKey(holiday: Holiday): string {
@@ -51,7 +52,10 @@ export function Timeline() {
         holidays.find((h) => getTimelineState(h, now, next ?? null) === "hoy") ??
         holidays.find((h) => getTimelineState(h, now, next ?? null) === "proximo");
       if (!target) return;
-      itemRefs.current.get(itemKey(target))?.scrollIntoView({ block: "center", behavior });
+      itemRefs.current.get(itemKey(target))?.scrollIntoView({
+        block: "center",
+        behavior: prefersReducedMotion() ? "auto" : behavior,
+      });
     },
     [now, holidays, next]
   );
@@ -127,7 +131,7 @@ export function Timeline() {
                             {formatWeekday(holiday.date, locale)}, {formatDayMonth(holiday.date, locale)}
                           </p>
                         </div>
-                        <span className="shrink-0 whitespace-nowrap text-[11px] font-medium text-ink-faint">
+                        <span className="shrink-0 whitespace-nowrap text-2xs font-medium text-ink-faint">
                           {relativeDaysLabel(days)}
                         </span>
                       </div>
@@ -137,7 +141,7 @@ export function Timeline() {
                         {holiday.irrenunciable ? <Badge tone="workday">Irrenunciable</Badge> : null}
                       </div>
                       {holiday.beneficiarios?.length ? (
-                        <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
+                        <p className="mt-1.5 text-2xs text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
                       ) : null}
                       <IrrenunciableNote irrenunciable={holiday.irrenunciable} className="mt-1" />
                       <HolidayNatureNote

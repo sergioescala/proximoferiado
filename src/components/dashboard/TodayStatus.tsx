@@ -1,11 +1,12 @@
 import { Skeleton } from "@/components/ui/Skeleton";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { formatDayMonth, formatTime, formatWeekday } from "@/lib/dates";
 import type { TodayStatus as TodayStatusValue } from "@/lib/holidays";
 
-const STATUS_META: Record<TodayStatusValue["kind"], { dot: string; label: string; tone: string }> = {
-  holiday: { dot: "🟢", label: "Hoy es feriado", tone: "text-holiday" },
-  sunday: { dot: "🟠", label: "Hoy es domingo", tone: "text-sunday" },
-  workday: { dot: "⚪", label: "Hoy es día laboral", tone: "text-workday" },
+const STATUS_LABEL: Record<TodayStatusValue["kind"], string> = {
+  holiday: "Hoy es feriado",
+  sunday: "Hoy es domingo",
+  workday: "Hoy es día laboral",
 };
 
 interface Props {
@@ -23,8 +24,6 @@ export function TodayStatus({ now, status, locale }: Props) {
     );
   }
 
-  const meta = STATUS_META[status.kind];
-
   return (
     <div className="mx-5 mt-5 animate-fade-up rounded-xl3 border border-border bg-surface p-5 shadow-soft">
       <div className="flex items-center justify-between gap-3">
@@ -32,12 +31,14 @@ export function TodayStatus({ now, status, locale }: Props) {
           <p className="text-xs font-medium uppercase tracking-wide text-ink-faint">
             {formatWeekday(now, locale)}, {formatDayMonth(now, locale)}
           </p>
-          <p className="mt-1 text-[26px] font-bold leading-none tabular-nums text-ink">{formatTime(now, locale)}</p>
+          {/* El nodo que muta cada segundo va oculto para lectores de
+              pantalla; el hermano sr-only da un ancla estable. */}
+          <span className="sr-only">Hora actual</span>
+          <time aria-hidden="true" className="mt-1 block text-[26px] font-bold leading-none tabular-nums text-ink">
+            {formatTime(now, locale)}
+          </time>
         </div>
-        <div className="flex shrink-0 items-center gap-2 rounded-full bg-ink/[0.04] px-3 py-2">
-          <span className="text-base leading-none">{meta.dot}</span>
-          <span className={`text-xs font-semibold ${meta.tone}`}>{meta.label}</span>
-        </div>
+        <StatusPill kind={status.kind} label={STATUS_LABEL[status.kind]} />
       </div>
     </div>
   );

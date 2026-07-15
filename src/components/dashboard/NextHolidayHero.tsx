@@ -24,7 +24,7 @@ export function NextHolidayHero({ holiday, now, locale, bridgeOpportunities }: P
 
   return (
     <Card className="relative mx-5 mt-4 animate-fade-up overflow-hidden bg-gradient-to-br from-accent/[0.12] via-surface to-surface">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-accent">Próximo feriado</p>
+      <p className="text-eyebrow font-semibold uppercase text-accent">Próximo feriado</p>
       <h2 className="mt-1 text-2xl font-bold leading-tight text-ink">{holiday.nombre}</h2>
       <p className="mt-1 text-sm text-ink-muted">
         {formatWeekday(holiday.date, locale)}, {formatDayMonth(holiday.date, locale)}

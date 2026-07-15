@@ -18,7 +18,7 @@ export function TodayHolidayCard({ holiday, locale, notas, bridgeOpportunities }
 
   return (
     <Card className="mx-5 mt-4 animate-fade-up border-holiday/25 bg-holiday/[0.06]">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-holiday">Feriado de hoy</p>
+      <p className="text-eyebrow font-semibold uppercase text-holiday">Feriado de hoy</p>
       <h2 className="mt-1 text-xl font-bold leading-tight text-ink">{holiday.nombre}</h2>
 
       <div className="mt-3 flex flex-wrap gap-1.5">

@@ -52,8 +52,8 @@ export function MonthSummary({ summary, locale }: Props) {
           <Card key={tile.label} className="animate-fade-up p-4">
             <tile.icon className="h-4 w-4 text-ink-faint" strokeWidth={2} />
             <p className="mt-2 text-xl font-bold leading-none text-ink">{tile.value}</p>
-            <p className="mt-1.5 text-[11px] leading-snug text-ink-muted">{tile.label}</p>
-            {tile.caption ? <p className="mt-1 text-[10px] leading-snug text-ink-faint">{tile.caption}</p> : null}
+            <p className="mt-1.5 text-2xs leading-snug text-ink-muted">{tile.label}</p>
+            {tile.caption ? <p className="mt-1 text-2xs leading-snug text-ink-faint">{tile.caption}</p> : null}
           </Card>
         ))}
       </div>

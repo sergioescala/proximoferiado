@@ -15,7 +15,7 @@ export function LastHolidayCard({ holiday, now, locale, bridgeOpportunities }: P
   if (!holiday) {
     return (
       <Card className="mx-5 mt-4 animate-fade-up">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Último feriado</p>
+        <p className="text-eyebrow font-semibold uppercase text-ink-faint">Último feriado</p>
         <p className="mt-2 text-sm text-ink-muted">Todavía no ha ocurrido ningún feriado este año.</p>
       </Card>
     );
@@ -25,7 +25,7 @@ export function LastHolidayCard({ holiday, now, locale, bridgeOpportunities }: P
 
   return (
     <Card className="mx-5 mt-4 animate-fade-up">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Último feriado</p>
+      <p className="text-eyebrow font-semibold uppercase text-ink-faint">Último feriado</p>
       <div className="mt-1.5 flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-base font-semibold text-ink">{holiday.nombre}</p>

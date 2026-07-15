@@ -17,13 +17,13 @@ interface Props {
  */
 export function HolidayNatureNote({ holiday, bridgeOpportunities, locale, className = "" }: Props) {
   if (isWeekend(holiday.date)) {
-    return <p className={`text-[10px] italic text-ink-faint ${className}`}>Cae en fin de semana</p>;
+    return <p className={`text-2xs italic text-ink-faint ${className}`}>Cae en fin de semana</p>;
   }
 
   const bridge = findBridgeOpportunity(bridgeOpportunities, holiday);
   if (bridge) {
     return (
-      <p className={`text-[10px] text-ink-faint ${className}`}>
+      <p className={`text-2xs text-ink-faint ${className}`}>
         <span className="font-semibold text-accent">Feriado puente:</span> toma el{" "}
         {formatWeekday(bridge.bridgeDate, locale)} {formatDayMonth(bridge.bridgeDate, locale)} libre y súmalo a{" "}
         {bridge.totalDays} días seguidos.
