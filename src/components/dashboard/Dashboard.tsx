@@ -41,6 +41,7 @@ export function Dashboard() {
         {now ? (
           <NextHolidayHero
             holiday={next ?? null}
+            lastHoliday={last ?? null}
             now={now}
             locale={locale}
             bridgeOpportunities={bridges}

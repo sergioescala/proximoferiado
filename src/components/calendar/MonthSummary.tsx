@@ -1,7 +1,9 @@
 import { Briefcase, CalendarDays, PartyPopper, Sun } from "lucide-react";
 import { BridgeList } from "@/components/BridgeList";
 import { Card } from "@/components/ui/Card";
+import { formatDayMonth, formatWeekday } from "@/lib/dates";
 import type { MonthSummary as MonthSummaryData } from "@/lib/holidays";
+import type { Holiday } from "@/types/holidays";
 
 function plural(n: number, singular: string, pluralForm = `${singular}s`): string {
   return `${n} ${n === 1 ? singular : pluralForm}`;
@@ -10,6 +12,8 @@ function plural(n: number, singular: string, pluralForm = `${singular}s`): strin
 interface Props {
   summary: MonthSummaryData;
   locale: string;
+  /** Primer feriado posterior al mes mostrado, para no dejar el mes vacío sin salida. */
+  nextHoliday?: Holiday | null;
 }
 
 /**
@@ -17,12 +21,18 @@ interface Props {
  * entre meses, esta sección cambia con ellos en vez de mostrar cifras del
  * año completo.
  */
-export function MonthSummary({ summary, locale }: Props) {
+export function MonthSummary({ summary, locale, nextHoliday = null }: Props) {
   if (summary.total === 0) {
     return (
       <Card className="mt-5 animate-fade-up text-center">
         <p className="text-sm text-ink-muted">Sin feriados este mes.</p>
         <p className="mt-1 text-xs text-ink-faint">{plural(summary.domingos, "domingo")}</p>
+        {nextHoliday ? (
+          <p className="mt-2 text-2xs text-ink-faint">
+            El próximo feriado es {nextHoliday.nombre} · {formatWeekday(nextHoliday.date, locale)},{" "}
+            {formatDayMonth(nextHoliday.date, locale)}
+          </p>
+        ) : null}
       </Card>
     );
   }

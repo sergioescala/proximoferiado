@@ -84,7 +84,7 @@ export function Timeline() {
           type="button"
           aria-label="Ir al feriado de hoy o al próximo"
           onClick={() => scrollToNearest("smooth")}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted active:scale-95"
+          className="pressable flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted"
         >
           <LocateFixed className="h-4 w-4" />
         </button>

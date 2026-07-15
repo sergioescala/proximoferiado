@@ -224,6 +224,19 @@ export function getMonthSummary(
   };
 }
 
+/**
+ * Fracción recorrida (0–1) del tramo entre el último feriado y el próximo,
+ * para el anillo de progreso del hero. Sin feriado previo se usa el 1 de
+ * enero del año del próximo feriado como punto de partida.
+ */
+export function getCountdownProgress(last: Holiday | null, next: Holiday, now: Date): number {
+  const from = startOfDay(last ? last.date : new Date(next.date.getFullYear(), 0, 1));
+  const total = diffInCalendarDays(next.date, from);
+  if (total <= 0) return 1;
+  const elapsed = diffInCalendarDays(startOfDay(now), from);
+  return Math.min(1, Math.max(0, elapsed / total));
+}
+
 export type TimelineState = "pasado" | "hoy" | "proximo" | "futuro";
 
 export function getTimelineState(holiday: Holiday, now: Date, nextHoliday: Holiday | null): TimelineState {

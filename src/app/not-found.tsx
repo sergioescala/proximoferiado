@@ -9,7 +9,7 @@ export default function NotFound() {
       <p className="mt-2 text-sm text-ink-muted">Esta fecha no existe en el calendario de la app.</p>
       <Link
         href="/"
-        className="mt-6 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-ink active:scale-95"
+        className="pressable mt-6 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-ink"
       >
         Volver al inicio
       </Link>

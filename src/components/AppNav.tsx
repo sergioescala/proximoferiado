@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { CalendarDays, History, House, type LucideIcon } from "lucide-react";
 import { holidaysData } from "@/lib/data";
 import { countryCodeToFlagEmoji } from "@/lib/flag";
+import { useViewTransitionRouter } from "@/hooks/useViewTransitionRouter";
 
 interface Tab {
   href: string;
@@ -29,6 +30,7 @@ function normalize(path: string): string {
  */
 export function AppNav() {
   const pathname = usePathname() ?? "/";
+  const pushWithTransition = useViewTransitionRouter();
 
   return (
     <nav
@@ -55,12 +57,22 @@ export function AppNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`pressable flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-2xs font-medium lg:min-h-0 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4 lg:py-2.5 lg:text-sm ${
+                onClick={(e) => {
+                  // Deja pasar aperturas en otra pestaña (cmd/ctrl/shift/click central).
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                  e.preventDefault();
+                  pushWithTransition(href);
+                }}
+                className={`pressable flex min-h-[48px] flex-col items-center justify-center gap-0.5 rounded-2xl px-3 py-1.5 text-2xs font-medium lg:min-h-0 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4 lg:py-2.5 lg:text-sm ${
                   active ? "text-accent lg:bg-accent/[0.1]" : "text-ink-faint hover:text-ink-muted"
                 }`}
               >
                 <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
                 <span>{label}</span>
+                <span
+                  className={`h-1 w-1 rounded-full ${active ? "animate-fade-in bg-accent" : "bg-transparent"} lg:hidden`}
+                  aria-hidden="true"
+                />
               </Link>
             </li>
           );

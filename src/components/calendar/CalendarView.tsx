@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarSearch, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -30,6 +30,7 @@ export function CalendarView() {
   const { now, holidays, data, longWeekends, bridgeOpportunities } = useHolidayData();
   const locale = data.locale ?? "es";
   const [month, setMonth] = useState<number | null>(null);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -80,8 +81,14 @@ export function CalendarView() {
   const weekdayLabels = WEEKDAY_ORDER.map((i) => weekdayNameByIndex(i, locale, "short"));
   const selectedStatus = selectedDay ? getTodayStatus(holidays, selectedDay.date) : null;
 
-  const goToPreviousMonth = () => setMonth((m) => (m !== null ? Math.max(0, m - 1) : m));
-  const goToNextMonth = () => setMonth((m) => (m !== null ? Math.min(11, m + 1) : m));
+  const goToPreviousMonth = () => {
+    setDirection(-1);
+    setMonth((m) => (m !== null ? Math.max(0, m - 1) : m));
+  };
+  const goToNextMonth = () => {
+    setDirection(1);
+    setMonth((m) => (m !== null ? Math.min(11, m + 1) : m));
+  };
 
   // Roving tabindex: una sola celda es tabulable. Por defecto el día
   // enfocado por teclado; si no, hoy; si no, el 1 del mes mostrado.
@@ -94,7 +101,10 @@ export function CalendarView() {
     const key = toKey(date);
     pendingFocusKey.current = key;
     setFocusedKey(key);
-    if (date.getMonth() !== month) setMonth(date.getMonth());
+    if (date.getMonth() !== month) {
+      setDirection(date.getMonth() > month ? 1 : -1);
+      setMonth(date.getMonth());
+    }
   };
 
   const handleGridKeyDown = (e: React.KeyboardEvent) => {
@@ -144,7 +154,7 @@ export function CalendarView() {
               aria-label="Mes anterior"
               disabled={month === 0}
               onClick={goToPreviousMonth}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30 active:scale-95"
+              className="pressable flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -156,14 +166,19 @@ export function CalendarView() {
               aria-label="Mes siguiente"
               disabled={month === 11}
               onClick={goToNextMonth}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30 active:scale-95"
+              className="pressable flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
+          {/* key={month} remonta la grilla en cada cambio de mes para que la
+              animación direccional corra siempre (swipe, flechas o teclado). */}
           <div
-            className="mt-4 grid grid-cols-7 gap-y-1 text-center"
+            key={month}
+            className={`mt-4 grid grid-cols-7 gap-y-1 text-center ${
+              direction === 1 ? "animate-slide-in-r" : "animate-slide-in-l"
+            }`}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             onKeyDown={handleGridKeyDown}
@@ -192,7 +207,7 @@ export function CalendarView() {
                   aria-pressed={isSelected}
                   onFocus={() => setFocusedKey(key)}
                   onClick={() => setSelectedKey((prev) => (prev === key ? null : key))}
-                  className={`relative mx-auto flex h-10 w-10 flex-col items-center justify-center rounded-2xl text-sm transition-all active:scale-95 hover:bg-ink/[0.05] md:h-12 md:w-12 md:text-base ${
+                  className={`pressable relative mx-auto flex h-10 w-10 flex-col items-center justify-center rounded-2xl text-sm hover:bg-ink/[0.05] md:h-12 md:w-12 md:text-base ${
                     hasHoliday ? "font-semibold text-holiday" : day.isSunday ? "text-sunday" : "text-ink"
                   } ${hasHoliday ? "bg-holiday/[0.12]" : ""} ${!day.inMonth ? "opacity-40" : ""} ${
                     isSelected ? "bg-accent/[0.16] ring-2 ring-accent" : ""
@@ -222,12 +237,20 @@ export function CalendarView() {
         </section>
 
         <aside className="lg:sticky lg:top-8">
-          <MonthSummary summary={monthSummary} locale={locale} />
+          <MonthSummary
+            summary={monthSummary}
+            locale={locale}
+            nextHoliday={holidays.find((h) => h.date.getFullYear() === data.anio && h.date.getMonth() > month) ?? null}
+          />
 
           <div className="mt-5 pb-4">
             {!selectedDay ? (
               <Card className="text-center">
-                <p className="text-sm text-ink-muted">Toca un día para ver su detalle.</p>
+                <CalendarSearch className="mx-auto h-6 w-6 text-ink-ghost" strokeWidth={1.5} aria-hidden="true" />
+                <p className="mt-2 text-sm text-ink-muted">
+                  <span className="lg:hidden">Toca un día para ver su detalle.</span>
+                  <span className="hidden lg:inline">Elige un día para ver su detalle.</span>
+                </p>
               </Card>
             ) : (
               <Card className="animate-fade-up">

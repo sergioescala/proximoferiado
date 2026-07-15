@@ -13,7 +13,7 @@ export function ThemeToggle() {
       aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       aria-pressed={isDark}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted transition-colors active:scale-95"
+      className="pressable flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted"
     >
       {/* El ícono puede diferir entre el HTML pre-generado (siempre asume
           claro) y el tema real leído en el navegador; es intencional. */}
