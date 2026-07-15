@@ -24,7 +24,7 @@ export function TodayStatus({ now, status, locale, className = "" }: Props) {
 
   return (
     <div className={`animate-fade-up rounded-xl3 border border-border bg-surface p-5 shadow-soft ${className}`}>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wide text-ink-faint">
             {formatWeekday(now, locale)}, {formatDayMonth(now, locale)}

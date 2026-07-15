@@ -12,7 +12,7 @@ export function Clock({ locale }: { locale: string }) {
   const now = useNow(1000);
 
   return (
-    <time aria-hidden="true" className="mt-1 block text-[26px] font-bold leading-none tabular-nums text-ink">
+    <time aria-hidden="true" className="mt-1 block whitespace-nowrap text-[26px] font-bold leading-none tabular-nums text-ink">
       {now ? formatTime(now, locale) : " "}
     </time>
   );
