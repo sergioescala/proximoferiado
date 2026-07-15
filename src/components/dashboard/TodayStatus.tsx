@@ -1,6 +1,7 @@
+import { Clock } from "@/components/dashboard/Clock";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatusPill } from "@/components/ui/StatusPill";
-import { formatDayMonth, formatTime, formatWeekday } from "@/lib/dates";
+import { formatDayMonth, formatWeekday } from "@/lib/dates";
 import type { TodayStatus as TodayStatusValue } from "@/lib/holidays";
 
 const STATUS_LABEL: Record<TodayStatusValue["kind"], string> = {
@@ -31,9 +32,7 @@ export function TodayStatus({ now, status, locale, className = "" }: Props) {
           {/* El nodo que muta cada segundo va oculto para lectores de
               pantalla; el hermano sr-only da un ancla estable. */}
           <span className="sr-only">Hora actual</span>
-          <time aria-hidden="true" className="mt-1 block text-[26px] font-bold leading-none tabular-nums text-ink">
-            {formatTime(now, locale)}
-          </time>
+          <Clock locale={locale} />
         </div>
         <StatusPill kind={status.kind} label={STATUS_LABEL[status.kind]} />
       </div>

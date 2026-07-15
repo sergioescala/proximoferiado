@@ -16,7 +16,7 @@
  * - Todo lo demás del mismo origen (íconos, manifest): stale-while-
  *   revalidate, un balance razonable para archivos chicos y poco críticos.
  */
-const CACHE_NAME = "proximoferiado-v2";
+const CACHE_NAME = "proximoferiado-v3";
 const CORE_PATHS = ["", "timeline/", "calendar/", "manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {

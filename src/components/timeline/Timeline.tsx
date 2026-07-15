@@ -62,7 +62,7 @@ export function Timeline() {
 
   // Al entrar a la línea de tiempo, la posiciona directamente en el feriado
   // de hoy (o si no hay, en el próximo) para no tener que buscarlo a mano.
-  // Se hace una sola vez: `now` cambia cada segundo y no debe reintentar.
+  // Se hace una sola vez: `now` cambia periódicamente y no debe reintentar.
   useEffect(() => {
     if (hasAutoScrolled.current || !now) return;
     hasAutoScrolled.current = true;
@@ -84,7 +84,7 @@ export function Timeline() {
           type="button"
           aria-label="Ir al feriado de hoy o al próximo"
           onClick={() => scrollToNearest("smooth")}
-          className="pressable flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted"
+          className="pressable flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted"
         >
           <LocateFixed className="h-4 w-4" />
         </button>

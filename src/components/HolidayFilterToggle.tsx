@@ -11,7 +11,7 @@ export function HolidayFilterToggle() {
       role="switch"
       aria-checked={showNonNational}
       onClick={() => setShowNonNational(!showNonNational)}
-      className="pressable flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-3 text-left text-2xs font-medium text-ink-muted"
+      className="pressable flex h-11 items-center gap-2 rounded-full border border-border bg-surface px-3 text-left text-2xs font-medium text-ink-muted"
     >
       <span
         className={`relative h-4 w-7 shrink-0 rounded-full transition-colors ${

@@ -154,7 +154,7 @@ export function CalendarView() {
               aria-label="Mes anterior"
               disabled={month === 0}
               onClick={goToPreviousMonth}
-              className="pressable flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30"
+              className="pressable flex h-11 w-11 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -166,7 +166,7 @@ export function CalendarView() {
               aria-label="Mes siguiente"
               disabled={month === 11}
               onClick={goToNextMonth}
-              className="pressable flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30"
+              className="pressable flex h-11 w-11 items-center justify-center rounded-full border border-border text-ink disabled:opacity-30"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
