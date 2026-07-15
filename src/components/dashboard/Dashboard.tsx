@@ -22,32 +22,46 @@ export function Dashboard() {
         <ControlsRow />
       </div>
 
-      <TodayStatus now={now} status={todayStatus ?? null} locale={locale} />
+      {/* En md+ el hero pasa arriba a lo ancho y las tarjetas menores se
+          reparten en dos columnas; en móvil se conserva el orden de una
+          columna (estado de hoy primero). */}
+      <div className="mt-4 grid grid-cols-1 gap-4 px-5 md:grid-cols-2 md:gap-5">
+        <TodayStatus now={now} status={todayStatus ?? null} locale={locale} className="md:order-2" />
 
-      {todayStatus?.kind === "holiday" ? (
-        <TodayHolidayCard
-          holiday={todayStatus.holiday}
-          locale={locale}
-          notas={data.notas}
-          bridgeOpportunities={bridges}
-        />
-      ) : null}
+        {todayStatus?.kind === "holiday" ? (
+          <TodayHolidayCard
+            holiday={todayStatus.holiday}
+            locale={locale}
+            notas={data.notas}
+            bridgeOpportunities={bridges}
+            className="md:order-3"
+          />
+        ) : null}
 
-      {now ? (
-        <NextHolidayHero holiday={next ?? null} now={now} locale={locale} bridgeOpportunities={bridges} />
-      ) : (
-        <div className="mx-5 mt-4">
-          <Skeleton className="h-40 rounded-xl3" />
-        </div>
-      )}
+        {now ? (
+          <NextHolidayHero
+            holiday={next ?? null}
+            now={now}
+            locale={locale}
+            bridgeOpportunities={bridges}
+            className="md:order-1 md:col-span-2"
+          />
+        ) : (
+          <Skeleton className="h-40 rounded-xl3 md:order-1 md:col-span-2" />
+        )}
 
-      {now ? (
-        <LastHolidayCard holiday={last ?? null} now={now} locale={locale} bridgeOpportunities={bridges} />
-      ) : (
-        <div className="mx-5 mt-4">
-          <Skeleton className="h-20 rounded-xl3" />
-        </div>
-      )}
+        {now ? (
+          <LastHolidayCard
+            holiday={last ?? null}
+            now={now}
+            locale={locale}
+            bridgeOpportunities={bridges}
+            className="md:order-4"
+          />
+        ) : (
+          <Skeleton className="h-20 rounded-xl3 md:order-4" />
+        )}
+      </div>
     </main>
   );
 }

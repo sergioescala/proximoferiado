@@ -13,19 +13,16 @@ interface Props {
   now: Date | null;
   status: TodayStatusValue | null;
   locale: string;
+  className?: string;
 }
 
-export function TodayStatus({ now, status, locale }: Props) {
+export function TodayStatus({ now, status, locale, className = "" }: Props) {
   if (!now || !status) {
-    return (
-      <div className="mx-5 mt-5">
-        <Skeleton className="h-[88px] rounded-xl3" />
-      </div>
-    );
+    return <Skeleton className={`h-[88px] rounded-xl3 ${className}`} />;
   }
 
   return (
-    <div className="mx-5 mt-5 animate-fade-up rounded-xl3 border border-border bg-surface p-5 shadow-soft">
+    <div className={`animate-fade-up rounded-xl3 border border-border bg-surface p-5 shadow-soft ${className}`}>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wide text-ink-faint">

@@ -11,13 +11,14 @@ interface Props {
   locale: string;
   notas?: string;
   bridgeOpportunities: BridgeOpportunity[];
+  className?: string;
 }
 
-export function TodayHolidayCard({ holiday, locale, notas, bridgeOpportunities }: Props) {
+export function TodayHolidayCard({ holiday, locale, notas, bridgeOpportunities, className = "" }: Props) {
   const extra = holiday.beneficiarios?.length ? holiday.beneficiarios.join(", ") : notas;
 
   return (
-    <Card className="mx-5 mt-4 animate-fade-up border-holiday/25 bg-holiday/[0.06]">
+    <Card className={`animate-fade-up border-holiday/25 bg-holiday/[0.06] ${className}`}>
       <p className="text-eyebrow font-semibold uppercase text-holiday">Feriado de hoy</p>
       <h2 className="mt-1 text-xl font-bold leading-tight text-ink">{holiday.nombre}</h2>
 

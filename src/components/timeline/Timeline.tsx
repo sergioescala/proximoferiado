@@ -70,7 +70,9 @@ export function Timeline() {
   }, [now, scrollToNearest]);
 
   return (
-    <main className="flex-1 px-5 pt-6">
+    // Una línea de tiempo es inherentemente lineal: en pantallas grandes se
+    // mantiene angosta y centrada en vez de estirarse a todo el ancho.
+    <main className="mx-auto w-full max-w-xl flex-1 px-5 pt-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-ink">Línea de tiempo</h1>
