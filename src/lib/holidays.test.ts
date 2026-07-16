@@ -5,6 +5,7 @@ import {
   describeCoverage,
   findBridgeOpportunity,
   getBridgeDayOpportunities,
+  getCountdownProgress,
   getLastHoliday,
   getLongWeekends,
   getMonthSummary,
@@ -183,5 +184,30 @@ describe("getTimelineState", () => {
     expect(getTimelineState(pasado, now, next)).toBe("pasado");
     expect(getTimelineState(proximo, now, next)).toBe("proximo");
     expect(getTimelineState(futuro, now, next)).toBe("futuro");
+  });
+});
+
+describe("getCountdownProgress", () => {
+  // San Pedro y San Pablo (2026-06-29) → Virgen del Carmen (2026-07-16): 17 días.
+  const last = nationalHolidays.find((h) => h.nombre === "San Pedro y San Pablo")!;
+  const next = nationalHolidays.find((h) => h.nombre === "Día de la Virgen del Carmen")!;
+
+  it("es 1 el día del próximo feriado", () => {
+    expect(getCountdownProgress(last, next, parseISODate("2026-07-16"))).toBe(1);
+  });
+
+  it("es casi 0 el día siguiente al último feriado", () => {
+    expect(getCountdownProgress(last, next, parseISODate("2026-06-30"))).toBeCloseTo(1 / 17);
+  });
+
+  it("queda dentro de [0, 1] aunque now esté fuera del tramo", () => {
+    expect(getCountdownProgress(last, next, parseISODate("2026-06-01"))).toBe(0);
+    expect(getCountdownProgress(last, next, parseISODate("2026-08-01"))).toBe(1);
+  });
+
+  it("sin feriado previo parte desde el 1 de enero", () => {
+    const carnaval = nationalHolidays.find((h) => h.fecha === "2026-04-03")!; // Viernes Santo
+    // 1 ene → 3 abr 2026: 92 días; al 2 de febrero van 32.
+    expect(getCountdownProgress(null, carnaval, parseISODate("2026-02-02"))).toBeCloseTo(32 / 92);
   });
 });

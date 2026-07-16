@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
-import { BottomNav } from "@/components/BottomNav";
+import { AppNav } from "@/components/AppNav";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { HolidayFilterProvider } from "@/context/HolidayFilterContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -94,15 +94,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
       </head>
       <body className="min-h-screen bg-canvas font-sans antialiased">
+        <a
+          href="#contenido"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
+        >
+          Saltar al contenido
+        </a>
         <ThemeProvider>
           <HolidayFilterProvider>
-            <div
-              className="mx-auto flex min-h-screen max-w-md flex-col"
-              style={{ paddingBottom: "calc(6rem + env(safe-area-inset-bottom))" }}
-            >
-              {children}
+            {/* En lg el nav pasa de barra inferior a rail lateral fijo de
+                240px; el pl-60 reserva ese espacio y el contenido se centra
+                en lo que queda. */}
+            <div className="lg:pl-60">
+              <div
+                id="contenido"
+                className="mx-auto flex min-h-screen w-full max-w-md flex-col pb-[calc(6rem+env(safe-area-inset-bottom))] md:max-w-2xl lg:max-w-5xl lg:pb-10"
+              >
+                {children}
+              </div>
             </div>
-            <BottomNav />
+            <AppNav />
           </HolidayFilterProvider>
         </ThemeProvider>
         <ServiceWorkerRegister />

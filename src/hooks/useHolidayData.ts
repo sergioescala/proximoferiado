@@ -16,15 +16,16 @@ import {
 
 /**
  * Punto de entrada único para toda la data derivada del JSON. `now` se
- * actualiza cada segundo (para el reloj), pero las estadísticas pesadas
- * solo se recalculan cuando cambia el día calendario (`todayKey`).
+ * actualiza una vez por minuto — suficiente para detectar el cambio de día;
+ * el reloj por segundo vive aislado en <Clock /> — y las estadísticas
+ * pesadas solo se recalculan cuando cambia el día calendario (`todayKey`).
  *
  * Respeta el filtro global "solo nacionales / incluir regionales y
  * comunales": todo lo que devuelve este hook (próximo/último feriado,
  * timeline, calendario, fines de semana largos, puentes) ya viene filtrado.
  */
 export function useHolidayData() {
-  const now = useNow(1000);
+  const now = useNow(60_000);
   const { showNonNational } = useHolidayFilter();
 
   const allHolidays = useMemo(() => normalizeHolidays(holidaysData), []);

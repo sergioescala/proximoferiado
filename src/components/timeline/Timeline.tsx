@@ -8,16 +8,17 @@ import { ControlsRow } from "@/components/ControlsRow";
 import { HolidayNatureNote } from "@/components/HolidayNatureNote";
 import { IrrenunciableNote } from "@/components/IrrenunciableNote";
 import { diffInCalendarDays, formatDayMonth, formatMonthName, formatWeekday } from "@/lib/dates";
+import { prefersReducedMotion } from "@/lib/dom";
 import { relativeDaysLabel } from "@/lib/format";
 import { describeCoverage, getTimelineState, type TimelineState } from "@/lib/holidays";
 import { useHolidayData } from "@/hooks/useHolidayData";
 import type { Holiday } from "@/types/holidays";
 
 const STATE_META: Record<TimelineState, { dot: string; label: string }> = {
-  pasado: { dot: "bg-ink-faint/50", label: "Pasado" },
+  pasado: { dot: "bg-ink-ghost/60", label: "Pasado" },
   hoy: { dot: "bg-holiday ring-4 ring-holiday/20", label: "Hoy" },
   proximo: { dot: "bg-accent ring-4 ring-accent/20", label: "Próximo" },
-  futuro: { dot: "border-2 border-ink-faint/50 bg-surface", label: "Futuro" },
+  futuro: { dot: "border-2 border-ink-ghost/60 bg-surface", label: "Futuro" },
 };
 
 function itemKey(holiday: Holiday): string {
@@ -51,14 +52,17 @@ export function Timeline() {
         holidays.find((h) => getTimelineState(h, now, next ?? null) === "hoy") ??
         holidays.find((h) => getTimelineState(h, now, next ?? null) === "proximo");
       if (!target) return;
-      itemRefs.current.get(itemKey(target))?.scrollIntoView({ block: "center", behavior });
+      itemRefs.current.get(itemKey(target))?.scrollIntoView({
+        block: "center",
+        behavior: prefersReducedMotion() ? "auto" : behavior,
+      });
     },
     [now, holidays, next]
   );
 
   // Al entrar a la línea de tiempo, la posiciona directamente en el feriado
   // de hoy (o si no hay, en el próximo) para no tener que buscarlo a mano.
-  // Se hace una sola vez: `now` cambia cada segundo y no debe reintentar.
+  // Se hace una sola vez: `now` cambia periódicamente y no debe reintentar.
   useEffect(() => {
     if (hasAutoScrolled.current || !now) return;
     hasAutoScrolled.current = true;
@@ -66,7 +70,9 @@ export function Timeline() {
   }, [now, scrollToNearest]);
 
   return (
-    <main className="flex-1 px-5 pt-6">
+    // Una línea de tiempo es inherentemente lineal: en pantallas grandes se
+    // mantiene angosta y centrada en vez de estirarse a todo el ancho.
+    <main className="mx-auto w-full max-w-xl flex-1 px-5 pt-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-ink">Línea de tiempo</h1>
@@ -78,7 +84,7 @@ export function Timeline() {
           type="button"
           aria-label="Ir al feriado de hoy o al próximo"
           onClick={() => scrollToNearest("smooth")}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted active:scale-95"
+          className="pressable flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink-muted"
         >
           <LocateFixed className="h-4 w-4" />
         </button>
@@ -127,7 +133,7 @@ export function Timeline() {
                             {formatWeekday(holiday.date, locale)}, {formatDayMonth(holiday.date, locale)}
                           </p>
                         </div>
-                        <span className="shrink-0 whitespace-nowrap text-[11px] font-medium text-ink-faint">
+                        <span className="shrink-0 whitespace-nowrap text-2xs font-medium text-ink-faint">
                           {relativeDaysLabel(days)}
                         </span>
                       </div>
@@ -137,7 +143,7 @@ export function Timeline() {
                         {holiday.irrenunciable ? <Badge tone="workday">Irrenunciable</Badge> : null}
                       </div>
                       {holiday.beneficiarios?.length ? (
-                        <p className="mt-1.5 text-[11px] text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
+                        <p className="mt-1.5 text-2xs text-ink-faint">{holiday.beneficiarios.join(", ")}</p>
                       ) : null}
                       <IrrenunciableNote irrenunciable={holiday.irrenunciable} className="mt-1" />
                       <HolidayNatureNote

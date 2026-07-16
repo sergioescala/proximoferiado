@@ -11,7 +11,7 @@ interface Props {
 export function IrrenunciableNote({ irrenunciable, className = "" }: Props) {
   if (!irrenunciable) return null;
   return (
-    <p className={`text-[10px] text-ink-faint ${className}`}>
+    <p className={`text-2xs text-ink-faint ${className}`}>
       Irrenunciable: el comercio debe permanecer cerrado ese día.
     </p>
   );
