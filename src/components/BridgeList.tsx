@@ -1,10 +1,19 @@
 import { Footprints } from "lucide-react";
 import { Card } from "@/components/ui/Card";
-import { formatDayMonth, formatWeekday } from "@/lib/dates";
+import { formatDayMonth, formatWeekday, startOfDay } from "@/lib/dates";
 import type { BridgeOpportunity } from "@/lib/holidays";
 
-export function BridgeList({ opportunities, locale }: { opportunities: BridgeOpportunity[]; locale: string }) {
+interface Props {
+  opportunities: BridgeOpportunity[];
+  locale: string;
+  /** Con `now`, los puentes ya pasados se muestran atenuados. */
+  now?: Date | null;
+}
+
+export function BridgeList({ opportunities, locale, now = null }: Props) {
   if (opportunities.length === 0) return null;
+
+  const today = now ? startOfDay(now) : null;
 
   return (
     <section className="mt-6">
@@ -14,7 +23,12 @@ export function BridgeList({ opportunities, locale }: { opportunities: BridgeOpp
       </h2>
       <div className="space-y-3">
         {opportunities.map(({ holiday, bridgeDate, totalDays }) => (
-          <Card key={holiday.fecha} className="animate-fade-up p-4">
+          <Card
+            key={holiday.fecha}
+            className={`animate-fade-up p-4 ${
+              today && holiday.date.getTime() < today.getTime() ? "opacity-60" : ""
+            }`}
+          >
             <p className="text-sm font-semibold text-ink">{holiday.nombre}</p>
             <p className="text-xs text-ink-muted">
               {formatWeekday(holiday.date, locale)}, {formatDayMonth(holiday.date, locale)}

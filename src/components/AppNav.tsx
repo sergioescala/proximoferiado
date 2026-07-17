@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, History, House, type LucideIcon } from "lucide-react";
+import { CalendarDays, Footprints, History, House, type LucideIcon } from "lucide-react";
 import { holidaysData } from "@/lib/data";
 import { countryCodeToFlagEmoji } from "@/lib/flag";
 import { useViewTransitionRouter } from "@/hooks/useViewTransitionRouter";
@@ -17,6 +17,7 @@ const TABS: Tab[] = [
   { href: "/", label: "Inicio", icon: House },
   { href: "/timeline", label: "Línea de tiempo", icon: History },
   { href: "/calendar", label: "Calendario", icon: CalendarDays },
+  { href: "/puentes", label: "Puentes", icon: Footprints },
 ];
 
 function normalize(path: string): string {

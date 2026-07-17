@@ -12,7 +12,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
 export default function sitemap(): MetadataRoute.Sitemap {
   if (!siteUrl) return [];
 
-  const routes = ["", "timeline", "calendar"];
+  const routes = ["", "timeline", "calendar", "puentes"];
   return routes.map((route) => ({
     url: `${siteUrl}/${route ? `${route}/` : ""}`,
     lastModified: new Date(),

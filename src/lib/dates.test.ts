@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   addDays,
   diffInCalendarDays,
+  formatDateRange,
   formatDayMonth,
   formatFullDate,
   formatMonthName,
@@ -121,5 +122,25 @@ describe("weekdayNameByIndex", () => {
     expect(weekdayNameByIndex(0, "es-CL")).toBe("Domingo");
     expect(weekdayNameByIndex(1, "es-CL")).toBe("Lunes");
     expect(weekdayNameByIndex(6, "es-CL")).toBe("Sábado");
+  });
+});
+
+describe("formatDateRange", () => {
+  it("colapsa el mes cuando el rango cae dentro del mismo mes", () => {
+    const range = formatDateRange(parseISODate("2026-09-18"), parseISODate("2026-09-20"), "es-CL");
+    expect(range).toContain("18");
+    expect(range).toContain("20");
+    expect(range.match(/septiembre/g)).toHaveLength(1);
+  });
+
+  it("muestra ambos meses cuando el rango los cruza", () => {
+    const range = formatDateRange(parseISODate("2026-06-27"), parseISODate("2026-07-01"), "es-CL");
+    expect(range).toContain("junio");
+    expect(range).toContain("julio");
+  });
+
+  it("sale capitalizado como el resto de los formatters", () => {
+    const range = formatDateRange(parseISODate("2026-09-18"), parseISODate("2026-09-20"), "es-CL");
+    expect(range.charAt(0)).toBe(range.charAt(0).toUpperCase());
   });
 });

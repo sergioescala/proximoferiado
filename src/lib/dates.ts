@@ -70,6 +70,17 @@ export function formatDayMonth(date: Date, locale: string): string {
   return capitalize(new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" }).format(date));
 }
 
+/** Rango compacto tipo "14 – 16 de julio", capitalizado. */
+export function formatDateRange(start: Date, end: Date, locale: string): string {
+  const formatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" });
+  try {
+    return capitalize(formatter.formatRange(start, end));
+  } catch {
+    // Runtimes sin Intl.DateTimeFormat#formatRange (muy viejos).
+    return `${formatDayMonth(start, locale)} – ${formatDayMonth(end, locale)}`;
+  }
+}
+
 export function formatFullDate(date: Date, locale: string): string {
   return capitalize(
     new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(
