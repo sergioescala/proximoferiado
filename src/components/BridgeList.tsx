@@ -25,8 +25,10 @@ export function BridgeList({ opportunities, locale, now = null }: Props) {
         {opportunities.map(({ holiday, bridgeDate, totalDays }) => (
           <Card
             key={holiday.fecha}
-            className={`animate-fade-up p-4 ${
-              today && holiday.date.getTime() < today.getTime() ? "opacity-60" : ""
+            // animate-fade-up deja opacity:1 fijada (fill both): en tarjetas
+            // pasadas se reemplaza por el atenuado.
+            className={`p-4 ${
+              today && holiday.date.getTime() < today.getTime() ? "opacity-60" : "animate-fade-up"
             }`}
           >
             <p className="text-sm font-semibold text-ink">{holiday.nombre}</p>

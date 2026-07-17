@@ -63,7 +63,9 @@ export function PlannerView() {
               return (
                 <Card
                   key={lw.start.toISOString()}
-                  className={`animate-fade-up p-4 ${isPast ? "opacity-60" : ""} ${
+                  // animate-fade-up deja opacity:1 fijada (fill both), así que
+                  // en tarjetas pasadas se cambia por el atenuado.
+                  className={`p-4 ${isPast ? "opacity-60" : "animate-fade-up"} ${
                     isNext ? "border-accent/40 bg-gradient-to-br from-accent/[0.08] to-transparent" : ""
                   }`}
                 >
